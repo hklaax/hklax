@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Device Download</title>
+
+<style>
+    body {
+        font-family: Arial;
+    }
+
+    .search-box {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .search-box input {
+        padding: 10px;
+        width: 250px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .device {
+        width: 200px;
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .btn {
+        margin-top: 10px;
+        padding: 8px 15px;
+        background-color: green;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: darkgreen;
+    }
+</style>
+
+<script>
+function searchDevice() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let devices = document.getElementsByClassName("device");
+
+    for (let i = 0; i < devices.length; i++) {
+        let name = devices[i].getElementsByTagName("h3")[0].innerText.toLowerCase();
+
+        if (name.includes(input)) {
+            devices[i].style.display = "block";
+        } else {
+            devices[i].style.display = "none";
+        }
+    }
+}
+</script>
+
+</head>
+<body>
+
+<div class="search-box">
+    <input type="text" id="search" onkeyup="searchDevice()" placeholder="Search device...">
+</div>
+
+<div class="container">
+
+   <div class="device" data-name="nokia 6.1 plus drg">
+    <h3>Nokia 6.1 Plus</h3>
+    <p>(Codename: DRG)</p>
+
+    <a href="https://release-assets.githubusercontent.com/github-production-release-asset/1227442098/bc04a106-050d-4f65-9633-a662b4c00e4c?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-05-03T16%3A04%3A41Z&rscd=attachment%3B+filename%3Dtwrp-3.6.2_9-0-DRG_sprout.img&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-05-03T15%3A03%3A53Z&ske=2026-05-03T16%3A04%3A41Z&sks=b&skv=2018-11-09&sig=%2Bon2dpcXDlE1i7EXOHYA0%2FfwrCIyq36O8h1yGKh%2F86s%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3NzgyMjQzNCwibmJmIjoxNzc3ODIwNjM0LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.m8RqydUJPCnhAuDY0eh0Orf7P0-kN5A3_a9z_hcpg8w&response-content-disposition=attachment%3B%20filename%3Dtwrp-3.6.2_9-0-DRG_sprout.img&response-content-type=application%2Foctet-stream" download>
+        <button class="btn">Twrp.img</button>
+    </a>
+
+    <a href="https://github.com/rahulkumarmy/HKLA-X/releases/download/android/twrp-installer-3.6.2_9-0-DRG_sprout.zip" download>
+        <button class="btn">Twrp.zip</button>
+    </a>
+</div>
+
+    <div class="device">
+        <h3>iPhone</h3>
+        <a href="file2.zip" download>
+            <button class="btn">Download</button>
+        </a>
+    </div>
+
+    <div class="device">
+        <h3>OnePlus</h3>
+        <a href="file3.zip" download>
+            <button class="btn">Download</button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
