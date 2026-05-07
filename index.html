@@ -8,15 +8,61 @@
             background: #111;
             color: white;
             text-align: center;
+            margin: 0;
         }
+
+        /* Hamburger Icon */
+        .menu-icon {
+            font-size: 28px;
+            cursor: pointer;
+            position: absolute;
+            left: 15px;
+            top: 15px;
+        }
+
+        /* Sidebar Menu */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #222;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            text-align: left;
+        }
+
+        .sidebar a:hover {
+            background: #444;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
         input {
             padding: 10px;
             width: 60%;
             margin: 20px;
         }
+
         .movie {
             margin: 15px;
         }
+
         a {
             color: yellow;
             text-decoration: none;
@@ -26,17 +72,26 @@
 
 <body>
 
+<!-- Hamburger Button -->
+<span class="menu-icon" onclick="openMenu()">☰</span>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+    <span class="close-btn" onclick="closeMenu()">×</span>
+    <a href="movies main.html">XMovies</a>
+    <a href="#">Files</a>
+    <a href="#">Settings</a>
+</div>
+
 <h1>HKLA X</h1>
 
 <input type="text" id="search" placeholder="Search Files" onkeyup="searchMovie()">
 
 <div id="movies">
-
-    <div class="movie"> <a href="twrp.html">TWRP</a> </div>
-    <div class="movie"> <a href="custom rom.html">CUSTOM ROM</a> </div>
-    <div class="movie"> <a href="bootloader unloack tool .html">BOOTLOADER UNLOCK TOOL</a> </div>
-     <div class="movie"> <a href="stock rom.html">STOCK ROM</a> </div>
-
+    <div class="movie"><a href="twrp.html">TWRP</a></div>
+    <div class="movie"><a href="custom rom.html">CUSTOM ROM</a></div>
+    <div class="movie"><a href="bootloader unloack tool .html">BOOTLOADER UNLOCK TOOL</a></div>
+    <div class="movie"><a href="stock rom.html">STOCK ROM</a></div>
 </div>
 
 <script>
@@ -48,6 +103,16 @@ function searchMovie() {
         let text = movies[i].innerText.toLowerCase();
         movies[i].style.display = text.includes(input) ? "block" : "none";
     }
+}
+
+// Open Menu
+function openMenu() {
+    document.getElementById("sidebar").style.width = "250px";
+}
+
+// Close Menu
+function closeMenu() {
+    document.getElementById("sidebar").style.width = "0";
 }
 </script>
 
