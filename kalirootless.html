@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rootless Kali Install Guide</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#111;
+    color:white;
+    margin:0;
+    padding:0;
+}
+
+header{
+    background:#000;
+    padding:20px;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#1c1c1c;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,255,136,0.2);
+}
+
+h2{
+    color:#00ff88;
+}
+
+code{
+    display:block;
+    background:#000;
+    padding:10px;
+    border-radius:8px;
+    overflow:auto;
+    margin-top:10px;
+    color:#00ff88;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:15px;
+    padding:12px 20px;
+    background:#00ff88;
+    color:black;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.btn:hover{
+    background:#00cc6a;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+Rootless Kali Linux Install Guide
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>Step 1 - Install Termux</h2>
+
+<p></p>
+
+<a class="btn"
+href="https://f-droid.org/repo/com.termux_1021.apk"
+target="_blank">
+Download Termux
+</a>
+
+</div>
+
+<div class="card">
+<h2>Step 2 - Update Packages</h2>
+
+<code>
+pkg update && pkg upgrade -y
+</code>
+
+</div>
+
+<div class="card">
+<h2>Step 3 - storage permission</h2>
+
+<code>
+termux-setup-storage
+</code>
+
+</div>
+
+<div class="card">
+<h2>Step 4 - install wget</h2>
+
+<code>
+pkg install wget
+</code>
+
+</div>
+
+<div class="card">
+<h2>Step 5 - kali requirement File Download</h2>
+
+<code>
+wget -O install-nethunter-termux  https://offs.ec/2MceZWr
+</code>
+
+</div>
+
+<div class="card">
+<h2>Step 6 - execute file permission</h2>
+
+<code>
+chmod +x install-nethunter-termux
+</code>
+
+</div>
+
+<div class="card">
+<h2>Step 6 - install Kali </h2>
+
+<code>
+./install-nethunter-termux
+</code>
+
+</div>
+
+<div class="card">
+<h2>Done ✅</h2>
+<p>Ab aapka Rootless Kali Linux ready hai.</p>
+</div>
+
+
+
+</div>
+
+</body>
+</html>
