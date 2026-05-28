@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhoneTrace Pro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+      color: #00ff41;
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.95);
+      border-bottom: 3px solid #00ff41;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .logo-span {
+      color: #ff0055;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      border: 2px solid #00ff41;
+      background: rgba(0, 255, 65, 0.08);
+      border-radius: 8px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: #00ff41;
+      text-shadow: 0 0 10px #00ff41;
+    }
+
+    .hero p {
+      color: #00ccff;
+      font-size: 14px;
+    }
+
+    .search-section {
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .search-title {
+      color: #00ff41;
+      margin-bottom: 15px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      background: rgba(0, 255, 65, 0.05);
+      border: 2px solid #00ff41;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+      border-color: #ff0055;
+    }
+
+    input::placeholder {
+      color: #00ff41;
+      opacity: 0.5;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #00ff41, #00ccff);
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #ff0055, #00ff41);
+      box-shadow: 0 0 15px rgba(255, 0, 85, 0.6);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .terminal {
+      background: rgba(0, 0, 0, 0.95);
+      border: 1px solid #00ff41;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 12px;
+      color: #00ff41;
+      min-height: 60px;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+
+    .terminal-line {
+      margin: 3px 0;
+    }
+
+    .error-msg {
+      background: rgba(255, 0, 85, 0.15);
+      border: 2px solid #ff0055;
+      color: #ff0055;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .results-box {
+      display: none;
+    }
+
+    .results-box.show {
+      display: block;
+    }
+
+    .result-card {
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      padding: 25px;
+    }
+
+    .result-card h2 {
+      color: #00ccff;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #00ff41;
+      padding-bottom: 10px;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+
+    .result-items {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .result-item {
+      background: rgba(0, 255, 65, 0.05);
+      border-left: 3px solid #00ff41;
+      padding: 12px;
+      border-radius: 4px;
+    }
+
+    .result-label {
+      color: #00ccff;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      color: #00ff41;
+      font-size: 14px;
+      font-weight: bold;
+      word-break: break-all;
+    }
+
+    .raw-json {
+      background: rgba(0, 0, 0, 0.95);
+      border: 1px solid #00ff41;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+
+    .raw-json pre {
+      color: #00ff41;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.95);
+      border-top: 2px solid #00ff41;
+      padding: 20px;
+      text-align: center;
+      color: #888;
+      margin-top: 50px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .result-items {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      PHONE<span class="logo-span">TRACE</span> PRO v1.0
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>PHONE INTELLIGENCE SYSTEM</h1>
+      <p>> Real-Time Phone Number Lookup & Analysis</p>
+    </div>
+
+    <div class="search-section">
+      <div class="search-title">$ SCAN PHONE NUMBER</div>
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="phoneNum" 
+          placeholder="Enter phone number (10-15 digits)"
+        >
+        <button class="btn" onclick="scanPhone()">SCAN</button>
+      </div>
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="terminal" id="terminal"></div>
+    </div>
+
+    <div class="results-box" id="resultsBox">
+      <div class="result-card">
+        <h2>SCAN RESULTS</h2>
+        <div class="result-items" id="resultItems"></div>
+        <div class="raw-json">
+          <pre id="rawJson"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    PhoneTrace Pro © 2026 | Use Responsibly
+  </footer>
+
+  <script>
+    // Configuration
+    const MAX_SEARCHES = 2;
+
+    function getSearchCount() {
+      const count = localStorage.getItem('phoneTrace_search_count');
+      return count ? parseInt(count, 10) : 0;
+    }
+
+    function incrementSearchCount() {
+      const currentCount = getSearchCount();
+      localStorage.setItem('phoneTrace_search_count', currentCount + 1);
+    }
+
+    function addLog(msg, type = 'info') {
+      const terminal = document.getElementById('terminal');
+      const line = document.createElement('div');
+      line.className = 'terminal-line';
+      
+      let prefix = '> ';
+      if (type === 'success') prefix = '✓ ';
+      if (type === 'error') prefix = '✗ ';
+      
+      line.textContent = prefix + msg;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    async function scanPhone() {
+      const phone = document.getElementById('phoneNum').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const terminal = document.getElementById('terminal');
+      const resultsBox = document.getElementById('resultsBox');
+      const btn = document.querySelector('.btn');
+
+      // Reset UI
+      errorMsg.classList.remove('show');
+      terminal.innerHTML = '';
+      resultsBox.classList.remove('show');
+
+      // 1. Permanent Rate Limit Check
+      const currentCount = getSearchCount();
+      if (currentCount >= MAX_SEARCHES) {
+        errorMsg.textContent = `❌ Search Limit Reached: Aapne apni maximum ${MAX_SEARCHES} free searches istemal kar li hain.`;
+        errorMsg.classList.add('show');
+        addLog('Request blocked: Permanent limit reached', 'error');
+        return;
+      }
+
+      // 2. Input Validation
+      if (!phone) {
+        errorMsg.textContent = '❌ Enter a phone number';
+        errorMsg.classList.add('show');
+        addLog('Input validation failed', 'error');
+        return;
+      }
+
+      if (!/^\d{10,15}$/.test(phone)) {
+        errorMsg.textContent = '❌ Invalid format (10-15 digits only)';
+        errorMsg.classList.add('show');
+        addLog('Invalid phone format', 'error');
+        return;
+      }
+
+      // Scanning State
+      btn.disabled = true;
+      btn.textContent = 'SCANNING...';
+      addLog('Initializing scan for: ' + phone);
+      addLog('Connecting to database...');
+
+      try {
+        const url = `https://akash-num2info-api.vercel.app/?num=${phone}&key=10`;
+        addLog('Sending API request...');
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+
+        addLog('Data received', 'success');
+
+        // Successful search hone par count badhayein
+        incrementSearchCount();
+
+        // Display results
+        showResults(data, phone);
+        resultsBox.classList.add('show');
+        addLog(`Scan completed (${currentCount + 1}/${MAX_SEARCHES} used)`, 'success');
+
+      } catch (err) {
+        errorMsg.textContent = '❌ API Error: ' + err.message;
+        errorMsg.classList.add('show');
+        addLog('Failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'SCAN';
+      }
+    }
+
+    function showResults(data, phone) {
+      const resultItems = document.getElementById('resultItems');
+      const rawJson = document.getElementById('rawJson');
+
+      resultItems.innerHTML = '';
+
+      const fields = {
+        'Phone': phone,
+        'Country': data.country || 'N/A',
+        'Carrier': data.carrier || 'N/A',
+        'Type': data.type || 'N/A',
+        'City': data.city || 'N/A',
+        'Region': data.region || 'N/A',
+        'Status': data.status || 'Active',
+        'Valid': data.valid !== undefined ? (data.valid ? 'Yes' : 'No') : 'N/A'
+      };
+
+      for (const [key, value] of Object.entries(fields)) {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.innerHTML = `
+          <div class="result-label">${key}</div>
+          <div class="result-value">${value}</div>
+        `;
+        resultItems.appendChild(item);
+      }
+
+      rawJson.textContent = JSON.stringify(data, null, 2);
+    }
+
+    // Allow Enter key
+    document.getElementById('phoneNum').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') scanPhone();
+    });
+  </script>
+</body>
+</html>
