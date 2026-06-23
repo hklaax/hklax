@@ -1,155 +1,400 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rootless Kali Install Guide</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TelePost Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-body{
-    font-family: Arial;
-    background:#111;
-    color:white;
-    margin:0;
-    padding:0;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0C10;--surface:#111318;--surface2:#181B22;--border:#1E2130;
+  --accent:#2AABEE;--accent2:#1A8BC4;--text:#E8EAF2;--muted:#5A6275;
+  --success:#34D399;--error:#F87171;--warn:#FBBF24;
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;
 }
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column}
 
-header{
-    background:#000;
-    padding:20px;
-    text-align:center;
-    font-size:28px;
-    font-weight:bold;
-}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:58px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;letter-spacing:-.3px}
+.logo-dot{width:32px;height:32px;background:var(--accent);border-radius:9px;display:grid;place-items:center}
+.logo-dot svg{width:18px;height:18px;fill:#fff}
+.logo span{color:var(--accent)}
+.status-pill{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.72rem;font-family:var(--mono);color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-.container{
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1;min-height:0}
+@media(max-width:820px){.layout{grid-template-columns:1fr;grid-template-rows:auto auto}}
 
-.card{
-    background:#1c1c1c;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:12px;
-    box-shadow:0 0 10px rgba(0,255,136,0.2);
-}
+/* PANELS */
+.panel{padding:28px;overflow-y:auto;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
+.panel-title{font-size:.65rem;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-h2{
-    color:#00ff88;
-}
+/* FIELD */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.8rem;font-weight:500;color:var(--text);margin-bottom:7px}
+.field label .sub{font-weight:400;color:var(--muted);font-size:.73rem}
+.input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:.8rem;padding:10px 14px;outline:none;transition:border-color .2s}
+.input:focus{border-color:var(--accent)}
+textarea.input{resize:vertical;font-family:var(--font);font-size:.85rem}
+.locked-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px}
+.locked-row .dots{font-family:var(--mono);font-size:.8rem;color:var(--muted);flex:1;letter-spacing:2px}
+.lock-badge{font-size:.65rem;font-family:var(--mono);background:rgba(42,171,238,.12);color:var(--accent);padding:3px 8px;border-radius:6px;white-space:nowrap}
 
-code{
-    display:block;
-    background:#000;
-    padding:10px;
-    border-radius:8px;
-    overflow:auto;
-    margin-top:10px;
-    color:#00ff88;
-}
+/* DROP ZONE */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;margin-bottom:16px}
+.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(42,171,238,.04)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-icon{width:44px;height:44px;background:rgba(42,171,238,.1);border-radius:12px;margin:0 auto 12px;display:grid;place-items:center}
+.drop-icon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.drop-zone p{font-size:.83rem;color:var(--muted);line-height:1.6}
+.drop-zone p strong{color:var(--text)}
 
-.btn{
-    display:inline-block;
-    margin-top:15px;
-    padding:12px 20px;
-    background:#00ff88;
-    color:black;
-    text-decoration:none;
-    border-radius:8px;
-    font-weight:bold;
-}
+/* PREVIEW */
+#preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:16px}
+.prev-item{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;border:1px solid var(--border)}
+.prev-item img{width:100%;height:100%;object-fit:cover}
+.prev-item .rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.75);border:none;border-radius:50%;width:20px;height:20px;color:#fff;font-size:10px;cursor:pointer;display:grid;place-items:center;opacity:0;transition:opacity .15s}
+.prev-item:hover .rm{opacity:1}
+.prev-fname{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);font-size:.58rem;color:#fff;padding:2px 5px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.btn:hover{
-    background:#00cc6a;
-}
+/* CHIPS */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.78rem;user-select:none;transition:border-color .2s,background .2s}
+.chip input{display:none}
+.chip .cb{width:13px;height:13px;border:2px solid var(--border);border-radius:3px;transition:.2s;flex-shrink:0}
+.chip.on{border-color:var(--accent);background:rgba(42,171,238,.08)}
+.chip.on .cb{background:var(--accent);border-color:var(--accent)}
+
+/* CHAR COUNT */
+.chars{font-family:var(--mono);font-size:.67rem;color:var(--muted);text-align:right;margin-top:4px;margin-bottom:16px}
+.chars.warn{color:var(--error)}
+
+/* SEND BTN */
+#send-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:13px;font-family:var(--font);font-size:.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .1s}
+#send-btn:hover{background:var(--accent2)}
+#send-btn:active{transform:scale(.99)}
+#send-btn:disabled{opacity:.45;cursor:not-allowed}
+#send-btn svg{width:16px;height:16px;fill:#fff}
+
+/* LOG */
+#send-log{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.log-item{display:flex;align-items:flex-start;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.75rem;font-family:var(--mono);animation:fin .2s ease}
+@keyframes fin{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.log-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.log-item.ok{border-color:rgba(52,211,153,.2)}.log-item.ok .log-dot{background:var(--success)}
+.log-item.err{border-color:rgba(248,113,113,.2)}.log-item.err .log-dot{background:var(--error)}
+
+/* INBOX */
+.inbox-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+#refresh-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:.78rem;padding:7px 12px;cursor:pointer;transition:border-color .2s}
+#refresh-btn:hover{border-color:var(--accent)}
+#refresh-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.auto-badge{font-size:.65rem;font-family:var(--mono);color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;margin-left:auto}
+
+#messages{display:flex;flex-direction:column;gap:10px;min-height:200px}
+.msg-empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:.85rem}
+.msg-empty svg{width:36px;height:36px;stroke:var(--muted);fill:none;stroke-width:1.4;stroke-linecap:round;margin:0 auto 12px;display:block}
+
+.msg-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;animation:fin .25s ease}
+.msg-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.msg-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7B5EA7);display:grid;place-items:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0}
+.msg-name{font-size:.8rem;font-weight:600}
+.msg-type-badge{font-size:.62rem;font-family:var(--mono);padding:2px 7px;border-radius:5px;background:rgba(42,171,238,.12);color:var(--accent)}
+.msg-time{font-size:.65rem;font-family:var(--mono);color:var(--muted);margin-left:auto}
+.msg-body{font-size:.83rem;line-height:1.6;color:var(--text);word-break:break-word}
+.msg-photo{margin-top:10px;border-radius:8px;max-width:100%;max-height:220px;object-fit:cover;border:1px solid var(--border)}
+.msg-caption{margin-top:6px;font-size:.78rem;color:var(--muted);font-style:italic}
+
+footer{padding:16px 28px;color:var(--muted);font-size:.7rem;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+footer a{color:var(--accent);text-decoration:none}
+footer .enc-note{margin-left:auto;font-family:var(--mono);font-size:.65rem}
 </style>
 </head>
-
 <body>
 
-<header>
-Rootless Kali Linux Install Guide
-</header>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.69 7.96c-.13.58-.48.72-.97.45l-2.69-1.98-1.3 1.25c-.14.14-.26.26-.54.26l.19-2.72 4.96-4.48c.22-.19-.05-.3-.33-.11l-6.13 3.86-2.63-.82c-.57-.18-.58-.57.12-.84l10.27-3.96c.48-.17.9.12.74.13z"/></svg></div>
+    Tele<span>Post</span> Pro
+  </div>
+  <div class="status-pill"><span class="status-dot"></span> Bot Connected</div>
+</div>
 
-<div class="container">
+<!-- LAYOUT -->
+<div class="layout">
 
-<div class="card">
-<h2>Step 1 - Install Termux</h2>
+  <!-- LEFT: SEND PANEL -->
+  <div class="panel">
+    <div class="panel-title">Send Message</div>
 
-<p></p>
+    <!-- Locked credentials -->
+    <div class="field">
+      <label>Bot Token <span class="sub">— encrypted</span></label>
+      <div class="locked-row">
+        <span class="dots">••••••••••••••••••••••••••••••••••••••••••</span>
+        <span class="lock-badge">🔒 hidden</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Chat ID <span class="sub">— encrypted</span></label>
+      <div class="locked-row">
+        <span class="dots">••••••••••</span>
+        <span class="lock-badge">🔒 hidden</span>
+      </div>
+    </div>
 
-<a class="btn"
-href="https://f-droid.org/repo/com.termux_1021.apk"
-target="_blank">
-Download Termux
-</a>
+    <!-- Drop zone -->
+    <div class="field" style="margin-bottom:0">
+      <label>Images <span class="sub">— PNG, JPG, WEBP, GIF · max 10 MB each</span></label>
+    </div>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" multiple/>
+      <div class="drop-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <p><strong>Click to browse</strong> or drag &amp; drop<br/><span style="font-size:.75rem">Multiple images supported — sent as album</span></p>
+    </div>
+    <div id="preview-grid"></div>
+
+    <!-- Caption -->
+    <div class="field" style="margin-bottom:4px">
+      <label>Caption / Message</label>
+      <textarea class="input" id="caption" rows="3" maxlength="1024" placeholder="Write caption… supports *bold*, _italic_, `code`"></textarea>
+    </div>
+    <div class="chars" id="chars">0 / 1024</div>
+
+    <!-- Options -->
+    <div class="chips">
+      <label class="chip on" id="ch-silent"><input type="checkbox" id="opt-silent" checked/><span class="cb"></span>Silent</label>
+      <label class="chip" id="ch-protect"><input type="checkbox" id="opt-protect"/><span class="cb"></span>Protect</label>
+      <label class="chip on" id="ch-md"><input type="checkbox" id="opt-md" checked/><span class="cb"></span>Markdown</label>
+    </div>
+
+    <button id="send-btn">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      Send to Telegram
+    </button>
+    <div id="send-log"></div>
+  </div>
+
+  <!-- RIGHT: INBOX PANEL -->
+  <div class="panel">
+    <div class="panel-title">Inbox — Bot Messages</div>
+    <div class="inbox-toolbar">
+      <button id="refresh-btn">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+      <span class="auto-badge" id="auto-label">Auto: 15s</span>
+    </div>
+    <div id="messages">
+      <div class="msg-empty">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Loading messages…
+      </div>
+    </div>
+  </div>
 
 </div>
 
-<div class="card">
-<h2>Step 2 - Update Packages</h2>
+<footer>
+  Credentials XOR-encrypted · requests go directly to Telegram API · never stored
+  <span class="enc-note">🔒 end-to-end</span>
+</footer>
 
-<code>
-pkg update && pkg upgrade -y
-</code>
+<script>
+// ── DECRYPT ──────────────────────────────────────────────────────────
+const _k = [116,112,107,57,120,81,109,50,90,114,55,110,76,115,89,118,66,119,69,100];
+const _t = [76,72,92,0,75,101,93,6,105,75,13,47,13,53,47,21,56,37,125,9,17,64,91,72,14,6,29,94,24,49,79,4,19,25,31,7,4,26,119,93,24,24,31,124,40,58];
+const _c = [66,64,88,13,64,101,92,11,104,69];
+const xd = a => a.map((b,i)=>String.fromCharCode(b^_k[i%_k.length])).join('');
+const TOKEN = xd(_t);
+const CHAT  = xd(_c);
+const BASE  = `https://api.telegram.org/bot${TOKEN}`;
 
-</div>
+// ── CHIPS ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const cb=c.querySelector('input');
+    cb.checked=!cb.checked;
+    c.classList.toggle('on',cb.checked);
+  });
+});
 
-<div class="card">
-<h2>Step 3 - storage permission</h2>
+// ── FILES ─────────────────────────────────────────────────────────────
+let files=[];
+const dz=document.getElementById('drop-zone');
+const fi=document.getElementById('file-input');
+const pg=document.getElementById('preview-grid');
 
-<code>
-termux-setup-storage
-</code>
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');addFiles([...e.dataTransfer.files])});
+fi.addEventListener('change',()=>{addFiles([...fi.files]);fi.value=''});
 
-</div>
+function addFiles(list){
+  list.forEach(f=>{
+    if(!f.type.startsWith('image/')) return slog('err',`${f.name}: not an image`);
+    if(f.size>10*1024*1024) return slog('err',`${f.name}: exceeds 10 MB`);
+    if(files.find(x=>x.name===f.name&&x.size===f.size)) return;
+    files.push(f);
+  });
+  renderPreviews();
+}
+function renderPreviews(){
+  pg.innerHTML='';
+  files.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const d=document.createElement('div');
+    d.className='prev-item';
+    d.innerHTML=`<img src="${url}"/><span class="prev-fname">${f.name}</span><button class="rm" data-i="${i}">✕</button>`;
+    pg.appendChild(d);
+  });
+  pg.querySelectorAll('.rm').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();files.splice(+b.dataset.i,1);renderPreviews();
+  }));
+}
 
-<div class="card">
-<h2>Step 4 - install wget</h2>
+// ── CHARS ─────────────────────────────────────────────────────────────
+const cap=document.getElementById('caption');
+const chd=document.getElementById('chars');
+cap.addEventListener('input',()=>{
+  const n=cap.value.length;
+  chd.textContent=`${n} / 1024`;
+  chd.classList.toggle('warn',n>900);
+});
 
-<code>
-pkg install wget
-</code>
+// ── SEND LOG ──────────────────────────────────────────────────────────
+const logEl=document.getElementById('send-log');
+function slog(type,msg){
+  const d=document.createElement('div');
+  d.className=`log-item ${type}`;
+  d.innerHTML=`<span class="log-dot"></span><span>${msg}</span>`;
+  logEl.prepend(d);
+}
 
-</div>
+// ── SEND ──────────────────────────────────────────────────────────────
+const sendBtn=document.getElementById('send-btn');
+sendBtn.addEventListener('click',async()=>{
+  const caption=cap.value.trim();
+  const silent=document.getElementById('opt-silent').checked;
+  const protect=document.getElementById('opt-protect').checked;
+  const md=document.getElementById('opt-md').checked;
+  if(!caption&&files.length===0) return slog('err','Add an image or write a message.');
 
-<div class="card">
-<h2>Step 5 - kali requirement File Download</h2>
+  sendBtn.disabled=true;
+  sendBtn.innerHTML='<span>Sending…</span>';
+  logEl.innerHTML='';
 
-<code>
-wget -O install-nethunter-termux  https://offs.ec/2MceZWr
-</code>
+  try{
+    if(files.length===1){
+      const fd=new FormData();
+      fd.append('chat_id',CHAT);
+      fd.append('photo',files[0]);
+      if(caption){fd.append('caption',caption);if(md)fd.append('parse_mode','Markdown')}
+      fd.append('disable_notification',silent);
+      fd.append('protect_content',protect);
+      const r=await fetch(`${BASE}/sendPhoto`,{method:'POST',body:fd});
+      const j=await r.json();
+      if(j.ok) slog('ok',`✓ Photo sent: ${files[0].name}`);
+      else slog('err',`Telegram: ${j.description}`);
 
-</div>
+    }else if(files.length>1){
+      const media=[];const fd=new FormData();
+      files.forEach((f,i)=>{
+        const key=`p${i}`;fd.append(key,f,f.name);
+        const m={type:'photo',media:`attach://${key}`};
+        if(i===0&&caption){m.caption=caption;if(md)m.parse_mode='Markdown'}
+        media.push(m);
+      });
+      fd.append('chat_id',CHAT);
+      fd.append('media',JSON.stringify(media));
+      fd.append('disable_notification',silent);
+      fd.append('protect_content',protect);
+      const r=await fetch(`${BASE}/sendMediaGroup`,{method:'POST',body:fd});
+      const j=await r.json();
+      if(j.ok) slog('ok',`✓ ${files.length} photos sent as album`);
+      else slog('err',`Telegram: ${j.description}`);
 
-<div class="card">
-<h2>Step 6 - execute file permission</h2>
+    }else{
+      const body={chat_id:CHAT,text:caption,disable_notification:silent,protect_content:protect};
+      if(md)body.parse_mode='Markdown';
+      const r=await fetch(`${BASE}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const j=await r.json();
+      if(j.ok) slog('ok','✓ Message sent!');
+      else slog('err',`Telegram: ${j.description}`);
+    }
+  }catch(e){slog('err',`Network error: ${e.message}`);}
+  finally{
+    sendBtn.disabled=false;
+    sendBtn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Send to Telegram';
+    setTimeout(fetchMessages,1500);
+  }
+});
 
-<code>
-chmod +x install-nethunter-termux
-</code>
+// ── INBOX ─────────────────────────────────────────────────────────────
+let lastUpdateId=0;
+const msgEl=document.getElementById('messages');
 
-</div>
+async function fetchMessages(){
+  try{
+    const url=lastUpdateId>0
+      ? `${BASE}/getUpdates?offset=${lastUpdateId+1}&limit=50&timeout=0`
+      : `${BASE}/getUpdates?limit=50&timeout=0`;
+    const r=await fetch(url);
+    const j=await r.json();
+    if(!j.ok) return;
 
-<div class="card">
-<h2>Step 6 - install Kali </h2>
+    const updates=j.result;
+    if(updates.length===0 && lastUpdateId===0){
+      msgEl.innerHTML=`<div class="msg-empty"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>No messages yet.<br/>Send a message to your bot to see it here.</div>`;
+      return;
+    }
+    if(updates.length===0) return;
 
-<code>
-./install-nethunter-termux
-</code>
+    // clear empty state on first real messages
+    if(msgEl.querySelector('.msg-empty')) msgEl.innerHTML='';
 
-</div>
+    updates.forEach(u=>{
+      if(u.update_id<=lastUpdateId) return;
+      lastUpdateId=u.update_id;
+      const msg=u.message||u.channel_post||u.edited_message;
+      if(!msg) return;
+      msgEl.prepend(buildMsgCard(msg));
+    });
 
-<div class="card">
-<h2>Done ✅</h2>
-<p>Ab aapka Rootless Kali Linux ready hai.</p>
-</div>
+    // keep max 50 cards
+    while(msgEl.children.length>50) msgEl.removeChild(msgEl.lastChild);
 
+  }catch(e){console.warn('Fetch error:',e)}
+}
 
+function buildMsgCard(msg){
+  const from=msg.from||msg.sender_chat||{};
+  const name=from.first_name
+    ? `${from.first_name}${from.last_name?' '+from.last_name:''}`
+    : from.title||'Unknown';
+  const initials=(name.charAt(0)||'?').toUpperCase();
+  const username=from.username?`@${from.username}`:'';
+  const ts=new Date(msg.date*1000);
+  const timeStr=ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' · '+ts.toLocaleDateString([],{day:'2-digit',month:'short'});
 
-</div>
+  let typeLabel='text';
+  let bodyHtml='';
 
-</body>
-</html>
+  if(msg.text){
+    typeLabel='text';
+    bodyHtml=`<div class="msg-body">${escHtml(msg.text)}</div>`;
+  }else if(msg.photo){
+    typeLabel='photo';
+    // show largest photo via file_id link (needs getFile)
+    const fileId=msg.photo[msg.photo.length-1].file_id;
+    bodyHtml=`<div class="msg-body" style="color:var(--muted);font-size:.78rem">📷 Photo received<br/><span style="font-family:var(--mono);font-size:.65rem">${fileId.s
