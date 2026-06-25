@@ -3,110 +3,162 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TelePost — WhatsApp Style</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>H4CK3R TERMINAL — Secure Comms</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#111B21;--sidebar:#202C33;--chat:#0B141A;--bubble-out:#005C4B;
-  --bubble-in:#202C33;--green:#25D366;--green2:#128C7E;--teal:#00A884;
-  --text:#E9EDEF;--muted:#8696A0;--border:#2A3942;--r:8px;
-  --font:'Inter',sans-serif;
+  --bg:#000;--panel:#050f05;--chat:#010a01;
+  --bubble-out:#001a00;--bubble-in:#0a0a0a;
+  --green:#00ff41;--green2:#00c832;--green3:#003d00;
+  --text:#00ff41;--muted:#1a6b1a;--border:#0f3d0f;
+  --red:#ff0040;--amber:#ffaa00;--cyan:#00ffff;
+  --font:'Share Tech Mono',monospace;
+  --display:'Orbitron',sans-serif;
 }
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;flex-direction:column}
+body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;flex-direction:column;position:relative}
 
-/* ── TOPBAR ── */
-.topbar{height:60px;background:var(--sidebar);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;border-bottom:1px solid var(--border)}
-.tp-avatar{width:40px;height:40px;border-radius:50%;background:var(--green2);display:grid;place-items:center;font-size:1rem}
-.tp-info h2{font-size:.92rem;font-weight:600}
-.tp-info p{font-size:.72rem;color:var(--muted)}
-.tp-actions{margin-left:auto;display:flex;gap:18px}
-.tp-actions svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;cursor:pointer}
-.tp-actions svg:hover{stroke:var(--text)}
+/* MATRIX RAIN BG */
+#matrix-canvas{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.07;pointer-events:none;z-index:0}
 
-/* ── LAYOUT ── */
-.layout{display:flex;flex:1;min-height:0;overflow:hidden}
+/* SCANLINE overlay */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:999;animation:scanMove 8s linear infinite}
+@keyframes scanMove{from{background-position:0 0}to{background-position:0 -200px}}
 
-/* ── SIDEBAR (Inbox) ── */
-.sidebar{width:380px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column}
-.sb-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sb-head h3{font-size:.82rem;font-weight:600;color:var(--text)}
-.refresh-btn{margin-left:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.72rem;padding:5px 8px;border-radius:6px;transition:.2s}
-.refresh-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
-.refresh-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.countdown{font-size:.65rem;color:var(--muted);font-family:monospace}
-#msg-list{flex:1;overflow-y:auto;padding:8px 0}
-#msg-list::-webkit-scrollbar{width:4px}
-#msg-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* TOPBAR */
+.topbar{height:56px;background:rgba(0,10,0,.95);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;border-bottom:1px solid var(--green3);position:relative;z-index:100;backdrop-filter:blur(4px)}
+.topbar::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 3s ease-in-out infinite}
+@keyframes scan{0%,100%{opacity:.3}50%{opacity:1}}
+.tp-avatar{width:36px;height:36px;border-radius:4px;background:var(--green3);display:grid;place-items:center;font-size:.8rem;border:1px solid var(--green);box-shadow:0 0 8px var(--green3);font-family:var(--display)}
+.tp-info h2{font-size:.78rem;font-weight:700;font-family:var(--display);letter-spacing:2px;color:var(--green);text-shadow:0 0 8px var(--green)}
+.tp-info p{font-size:.6rem;color:var(--muted);letter-spacing:1px}
+.tp-info p.online{color:var(--green);animation:blink .8s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.tp-badge{font-size:.55rem;background:var(--green3);border:1px solid var(--green);color:var(--green);padding:2px 8px;border-radius:2px;letter-spacing:2px;font-family:var(--display)}
+.tp-actions{margin-left:auto;display:flex;gap:12px;align-items:center}
+.tp-actions svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:1.5;stroke-linecap:round;cursor:pointer;transition:.2s}
+.tp-actions svg:hover{stroke:var(--green);filter:drop-shadow(0 0 4px var(--green))}
 
-.msg-row{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s}
-.msg-row:hover{background:rgba(255,255,255,.04)}
-.msg-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green2),#128C7E);display:grid;place-items:center;font-size:1rem;font-weight:600;flex-shrink:0;color:#fff}
+/* LAYOUT */
+.layout{display:flex;flex:1;min-height:0;overflow:hidden;position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{width:320px;flex-shrink:0;background:rgba(0,8,0,.97);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sb-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sb-head h3{font-size:.7rem;font-weight:400;color:var(--green);letter-spacing:3px;font-family:var(--display)}
+.refresh-btn{margin-left:auto;background:none;border:1px solid var(--green3);cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--muted);font-size:.6rem;padding:4px 8px;border-radius:2px;transition:.2s;font-family:var(--font)}
+.refresh-btn:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 6px var(--green3)}
+.refresh-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.countdown{font-size:.6rem;color:var(--muted);font-family:var(--font)}
+#msg-list{flex:1;overflow-y:auto;padding:4px 0}
+#msg-list::-webkit-scrollbar{width:3px}
+#msg-list::-webkit-scrollbar-thumb{background:var(--green3);border-radius:1px}
+
+.msg-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,255,65,.04);transition:background .15s;position:relative}
+.msg-row:hover{background:rgba(0,255,65,.04)}
+.msg-row::before{content:'>';position:absolute;left:4px;top:50%;transform:translateY(-50%);color:var(--green);font-size:.6rem;opacity:0;transition:.15s}
+.msg-row:hover::before{opacity:1}
+.msg-av{width:38px;height:38px;border-radius:3px;background:var(--green3);display:grid;place-items:center;font-size:.85rem;font-weight:700;flex-shrink:0;color:var(--green);border:1px solid var(--border);font-family:var(--display)}
 .msg-info{flex:1;min-width:0}
 .msg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-.msg-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.msg-time2{font-size:.65rem;color:var(--muted);flex-shrink:0}
-.msg-preview{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
-.msg-badge{background:var(--green);color:#111;font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0}
-.empty-inbox{padding:48px 20px;text-align:center;color:var(--muted);font-size:.82rem;line-height:1.7}
-.empty-inbox svg{width:40px;height:40px;stroke:var(--muted);fill:none;stroke-width:1.3;stroke-linecap:round;margin:0 auto 12px;display:block}
+.msg-name{font-size:.75rem;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--green);letter-spacing:1px}
+.msg-time2{font-size:.58rem;color:var(--muted);flex-shrink:0;font-family:var(--font)}
+.msg-preview{font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-badge{background:var(--green);color:#000;font-size:.55rem;font-weight:700;padding:1px 5px;border-radius:2px;flex-shrink:0;font-family:var(--display)}
+.empty-inbox{padding:40px 16px;text-align:center;color:var(--muted);font-size:.68rem;line-height:2;letter-spacing:1px}
 
-/* ── CHAT AREA ── */
+/* CHAT AREA */
 .chat-area{flex:1;display:flex;flex-direction:column;background:var(--chat);position:relative;min-width:0}
-.chat-bg{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
-.chat-messages{flex:1;overflow-y:auto;padding:16px 8%;position:relative;z-index:1}
-.chat-messages::-webkit-scrollbar{width:4px}
-.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-messages{flex:1;overflow-y:auto;padding:16px 6%;position:relative;z-index:1}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--green3);border-radius:1px}
 
 /* bubbles */
-.bubble-wrap{display:flex;margin-bottom:4px}
+.bubble-wrap{display:flex;margin-bottom:6px}
 .bubble-wrap.out{justify-content:flex-end}
 .bubble-wrap.in{justify-content:flex-start}
-.bubble{max-width:65%;padding:7px 12px 8px;border-radius:8px;position:relative;font-size:.85rem;line-height:1.5;word-break:break-word}
-.bubble-wrap.out .bubble{background:var(--bubble-out);border-top-right-radius:2px}
-.bubble-wrap.in .bubble{background:var(--bubble-in);border-top-left-radius:2px}
-.bubble .bub-meta{display:flex;align-items:center;gap:6px;margin-top:3px}
-.bubble .bub-time{font-size:.63rem;color:rgba(255,255,255,.45)}
-.bubble .bub-name{font-size:.7rem;color:var(--teal);font-weight:600;margin-bottom:2px}
-.bubble .bub-type{font-size:.65rem;background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px;color:rgba(255,255,255,.6)}
-.tick{width:14px;height:14px;fill:var(--teal)}
-.date-sep{text-align:center;margin:12px 0}
-.date-sep span{background:rgba(17,27,33,.85);color:var(--muted);font-size:.7rem;padding:4px 12px;border-radius:8px;border:1px solid var(--border)}
+.bubble{max-width:68%;padding:8px 12px 6px;border-radius:2px;position:relative;font-size:.78rem;line-height:1.6;word-break:break-word;border:1px solid var(--border)}
+.bubble-wrap.out .bubble{background:var(--bubble-out);border-color:#003300;border-top-right-radius:0;box-shadow:0 0 8px rgba(0,255,65,.05)}
+.bubble-wrap.in .bubble{background:var(--bubble-in);border-color:#1a1a1a;border-top-left-radius:0}
+.bubble-wrap.out .bubble::before{content:'[OUT]';position:absolute;top:-8px;right:0;font-size:.5rem;color:var(--green);opacity:.5;letter-spacing:1px}
+.bubble-wrap.in .bubble::before{content:'[IN]';position:absolute;top:-8px;left:0;font-size:.5rem;color:var(--muted);opacity:.5;letter-spacing:1px}
+.bubble .bub-meta{display:flex;align-items:center;gap:6px;margin-top:4px}
+.bubble .bub-time{font-size:.58rem;color:var(--muted)}
+.bubble .bub-name{font-size:.62rem;color:var(--cyan);font-weight:400;margin-bottom:3px;letter-spacing:1px}
+.bubble .bub-type{font-size:.58rem;background:rgba(0,255,65,.08);padding:1px 5px;border-radius:1px;color:var(--green);border:1px solid var(--green3)}
+.tick{width:12px;height:12px;fill:var(--green)}
+.date-sep{text-align:center;margin:14px 0}
+.date-sep span{background:rgba(0,20,0,.9);color:var(--muted);font-size:.62rem;padding:3px 12px;border-radius:2px;border:1px solid var(--border);letter-spacing:2px}
 
-/* ── INPUT BAR ── */
-.input-bar{background:var(--sidebar);padding:10px 16px;display:flex;align-items:flex-end;gap:10px;border-top:1px solid var(--border);position:relative;z-index:2;flex-shrink:0}
-.attach-btn{width:40px;height:40px;border-radius:50%;background:none;border:none;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.2s}
-.attach-btn:hover{background:rgba(255,255,255,.06)}
-.attach-btn svg{width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.attach-panel{position:absolute;bottom:68px;left:16px;background:var(--sidebar);border:1px solid var(--border);border-radius:12px;padding:12px;display:none;gap:10px;flex-wrap:wrap;width:200px;z-index:10}
+/* MEDIA IN BUBBLE */
+.bubble-media{max-width:100%;border-radius:2px;display:block;margin-bottom:4px;border:1px solid var(--green3);cursor:pointer;transition:.2s}
+.bubble-media:hover{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,.2)}
+.bubble-media.img-media{max-height:200px;object-fit:cover}
+.bubble-media.vid-media{max-height:200px;width:100%}
+.audio-player{width:100%;margin-bottom:4px;accent-color:var(--green);filter:invert(1) hue-rotate(90deg);height:28px}
+.media-err{font-size:.65rem;color:var(--amber);padding:4px 8px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:2px;margin-bottom:4px}
+
+/* AUDIO RECORDER */
+.rec-indicator{display:none;align-items:center;gap:8px;padding:6px 12px;background:rgba(255,0,64,.08);border:1px solid rgba(255,0,64,.3);border-radius:2px;font-size:.68rem;color:var(--red);letter-spacing:1px}
+.rec-indicator.active{display:flex}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:recblink .6s step-end infinite;box-shadow:0 0 6px var(--red)}
+@keyframes recblink{50%{opacity:0}}
+.rec-timer{font-family:var(--font);color:var(--red)}
+
+/* INPUT BAR */
+.input-bar{background:rgba(0,8,0,.98);padding:8px 12px;display:flex;align-items:flex-end;gap:8px;border-top:1px solid var(--border);position:relative;z-index:2;flex-shrink:0;flex-direction:column}
+.input-row{display:flex;align-items:flex-end;gap:8px;width:100%}
+#rec-indicator-bar{display:none;width:100%;align-items:center;gap:8px;padding:5px 10px;background:rgba(255,0,64,.06);border:1px solid rgba(255,0,64,.2);border-radius:2px;font-size:.65rem;color:var(--red);letter-spacing:1px;margin-bottom:4px}
+#rec-indicator-bar.active{display:flex}
+.icon-btn{width:36px;height:36px;border-radius:2px;background:none;border:1px solid var(--border);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.2s}
+.icon-btn:hover{border-color:var(--green);box-shadow:0 0 6px rgba(0,255,65,.15)}
+.icon-btn svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:.2s}
+.icon-btn:hover svg{stroke:var(--green)}
+.icon-btn.danger{border-color:rgba(255,0,64,.3)}
+.icon-btn.danger:hover{border-color:var(--red);box-shadow:0 0 6px rgba(255,0,64,.2)}
+.icon-btn.danger svg{stroke:var(--red)}
+
+.attach-panel{position:absolute;bottom:58px;left:12px;background:rgba(0,10,0,.98);border:1px solid var(--border);border-radius:4px;padding:10px;display:none;gap:8px;flex-wrap:wrap;width:220px;z-index:10;box-shadow:0 0 20px rgba(0,255,65,.08)}
 .attach-panel.open{display:flex}
-.attach-opt{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px;border-radius:8px;transition:.15s;width:72px}
-.attach-opt:hover{background:rgba(255,255,255,.06)}
-.attach-opt .aicon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
-.attach-opt span{font-size:.65rem;color:var(--muted);text-align:center}
-.aicon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.attach-opt{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:8px;border-radius:2px;transition:.15s;width:62px;border:1px solid transparent}
+.attach-opt:hover{border-color:var(--green3);background:rgba(0,255,65,.04)}
+.attach-opt .aicon{width:36px;height:36px;border-radius:2px;display:grid;place-items:center;border:1px solid var(--border)}
+.attach-opt span{font-size:.58rem;color:var(--muted);text-align:center;letter-spacing:1px}
+.attach-opt:hover span{color:var(--green)}
+.aicon svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-/* preview chips */
-#img-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;display:none}
-.img-chip{position:relative;width:52px;height:52px;border-radius:8px;overflow:hidden;border:2px solid var(--green2);flex-shrink:0}
-.img-chip img{width:100%;height:100%;object-fit:cover}
-.img-chip .rm2{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.8);border:none;border-radius:50%;width:16px;height:16px;color:#fff;font-size:8px;cursor:pointer;display:grid;place-items:center}
+#img-chips{display:flex;gap:5px;flex-wrap:wrap;width:100%}
+.img-chip{position:relative;width:50px;height:50px;border-radius:2px;overflow:hidden;border:1px solid var(--green3);flex-shrink:0}
+.img-chip img{width:100%;height:100%;object-fit:cover;filter:brightness(.8) saturate(.5) hue-rotate(90deg)}
+.img-chip .rm2{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.9);border:none;border-radius:1px;width:14px;height:14px;color:var(--red);font-size:7px;cursor:pointer;display:grid;place-items:center}
 
-.msg-input-wrap{flex:1;background:var(--bg);border-radius:22px;display:flex;flex-direction:column;padding:8px 14px;border:1px solid var(--border);min-height:44px}
-#caption{background:none;border:none;color:var(--text);font-family:var(--font);font-size:.88rem;outline:none;resize:none;max-height:120px;line-height:1.5;width:100%}
+.msg-input-wrap{flex:1;background:#000;border-radius:2px;display:flex;flex-direction:column;padding:6px 12px;border:1px solid var(--border);min-height:40px;transition:.2s}
+.msg-input-wrap:focus-within{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,.1)}
+#caption{background:none;border:none;color:var(--green);font-family:var(--font);font-size:.8rem;outline:none;resize:none;max-height:100px;line-height:1.5;width:100%}
 #caption::placeholder{color:var(--muted)}
-.send-btn{width:44px;height:44px;border-radius:50%;background:var(--teal);border:none;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.15s}
-.send-btn:hover{background:var(--green2)}
-.send-btn:disabled{opacity:.4;cursor:not-allowed}
-.send-btn svg{width:20px;height:20px;fill:#fff;margin-left:2px}
 
-/* hidden file input */
-#file-input{display:none}
+.send-btn{width:40px;height:40px;border-radius:2px;background:var(--green3);border:1px solid var(--green);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.15s;box-shadow:0 0 10px rgba(0,255,65,.1)}
+.send-btn:hover{background:var(--green);box-shadow:0 0 16px rgba(0,255,65,.3)}
+.send-btn:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.send-btn svg{width:16px;height:16px;fill:var(--green);transition:.2s}
+.send-btn:hover svg{fill:#000}
 
-/* scrollbar */
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.mic-btn{width:40px;height:40px;border-radius:2px;background:none;border:1px solid var(--border);cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.15s}
+.mic-btn:hover{border-color:var(--green);box-shadow:0 0 6px rgba(0,255,65,.15)}
+.mic-btn.recording{border-color:var(--red);background:rgba(255,0,64,.1);animation:micpulse 1s ease-in-out infinite}
+@keyframes micpulse{0%,100%{box-shadow:0 0 4px rgba(255,0,64,.3)}50%{box-shadow:0 0 12px rgba(255,0,64,.6)}}
+.mic-btn svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:.2s}
+.mic-btn:hover svg,.mic-btn.recording svg{stroke:var(--red)}
+
+#file-input,#vid-input,#audio-input{display:none}
+
+/* NOTIF */
+.notif{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#000;border:1px solid var(--green);color:var(--green);padding:8px 16px;border-radius:2px;font-size:.7rem;z-index:9999;letter-spacing:1px;box-shadow:0 0 16px rgba(0,255,65,.2);font-family:var(--font)}
+.notif.err{border-color:var(--red);color:var(--red);box-shadow:0 0 16px rgba(255,0,64,.2)}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--green3);border-radius:1px}
 
 @media(max-width:700px){
   .sidebar{width:100%;position:absolute;z-index:50;height:100%;transform:translateX(-100%);transition:.3s}
@@ -116,15 +168,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex
 </head>
 <body>
 
+<canvas id="matrix-canvas"></canvas>
+
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="tp-avatar">🔥</div>
+  <div class="tp-avatar">⬛</div>
   <div class="tp-info">
-    <h2>Aditya</h2>
-    <p id="bot-status">Connecting…</p>
+    <h2>SECURE_NODE</h2>
+    <p id="bot-status" class="online">● CONNECTING...</p>
   </div>
+  <span class="tp-badge">ENCRYPTED</span>
   <div class="tp-actions">
-    <svg viewBox="0 0 24 24" title="Search" onclick="alert('Search coming soon')"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg viewBox="0 0 24 24" title="Search"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <svg viewBox="0 0 24 24" title="More"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
   </div>
 </div>
@@ -132,59 +187,96 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex
 <!-- LAYOUT -->
 <div class="layout">
 
-  <!-- SIDEBAR: Inbox -->
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
     <div class="sb-head">
-      <h3>📥 Inbox</h3>
+      <h3>// INBOX</h3>
       <button class="refresh-btn" id="refresh-btn">
         <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        Refresh
+        SYNC
       </button>
       <span class="countdown" id="countdown">15s</span>
     </div>
     <div id="msg-list">
-      <div class="empty-inbox">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Loading messages…
-      </div>
+      <div class="empty-inbox">// NO_DATA_STREAM<br/>AWAITING_PACKETS...</div>
     </div>
   </div>
 
   <!-- CHAT AREA -->
   <div class="chat-area">
-    <div class="chat-bg"></div>
-    <div class="chat-messages" id="chat-messages">
-      <!-- messages rendered here -->
-    </div>
+    <div class="chat-messages" id="chat-messages"></div>
 
     <!-- attach panel -->
     <div class="attach-panel" id="attach-panel">
       <div class="attach-opt" onclick="document.getElementById('file-input').click()">
-        <div class="aicon" style="background:#BF59CF">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <div class="aicon" style="background:#0a000a">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </div>
-        <span>Photos</span>
+        <span>IMAGE</span>
+      </div>
+      <div class="attach-opt" onclick="document.getElementById('vid-input').click()">
+        <div class="aicon" style="background:#000a0a">
+          <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="1"/></svg>
+        </div>
+        <span>VIDEO</span>
+      </div>
+      <div class="attach-opt" onclick="document.getElementById('audio-input').click()">
+        <div class="aicon" style="background:#0a0500">
+          <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <span>AUDIO</span>
       </div>
     </div>
 
     <!-- INPUT BAR -->
     <div class="input-bar">
-      <button class="attach-btn" id="attach-toggle">
-        <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-      </button>
-      <input type="file" id="file-input" accept="image/*" multiple/>
-      <div class="msg-input-wrap">
-        <div id="img-chips"></div>
-        <textarea id="caption" rows="1" placeholder="Message" oninput="autoResize(this)"></textarea>
+      <div id="rec-indicator-bar">
+        <div class="rec-dot" style="width:7px;height:7px;border-radius:50%;background:var(--red);animation:recblink .6s step-end infinite"></div>
+        REC <span id="rec-timer">00:00</span> — TAP_MIC_TO_STOP
       </div>
-      <button class="send-btn" id="send-btn">
-        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-      </button>
+      <div id="img-chips"></div>
+      <div class="input-row">
+        <button class="icon-btn" id="attach-toggle" title="Attach">
+          <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <input type="file" id="file-input" accept="image/*" multiple/>
+        <input type="file" id="vid-input" accept="video/*" multiple/>
+        <input type="file" id="audio-input" accept="audio/*" multiple/>
+        <div class="msg-input-wrap">
+          <textarea id="caption" rows="1" placeholder="// type message..." oninput="autoResize(this)"></textarea>
+        </div>
+        <button class="mic-btn" id="mic-btn" title="Record Voice">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="send-btn" id="send-btn">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+// ── MATRIX RAIN ──────────────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('matrix-canvas');
+  const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const cols=Math.floor(window.innerWidth/16);
+  const drops=Array(cols).fill(1);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#00ff41';ctx.font='14px Share Tech Mono';
+    drops.forEach((y,i)=>{
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*16,y*16);
+      if(y*16>canvas.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    });
+  },50);
+})();
+
 // ── DECRYPT ──────────────────────────────────────────────────────
 const _k=[116,112,107,57,120,81,109,50,90,114,55,110,76,115,89,118,66,119,69,100];
 const _t=[76,72,92,0,75,101,93,6,105,75,13,47,13,53,47,21,56,37,125,9,17,64,91,72,14,6,29,94,24,49,79,4,19,25,31,7,4,26,119,93,24,24,31,124,40,58];
@@ -193,24 +285,29 @@ const xd=a=>a.map((b,i)=>String.fromCharCode(b^_k[i%_k.length])).join('');
 const TOKEN=xd(_t), CHAT=xd(_c);
 const BASE=`https://api.telegram.org/bot${TOKEN}`;
 
-// ── AUTO RESIZE TEXTAREA ────────────────────────────────────────
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
+// ── AUTO RESIZE ────────────────────────────────────────────────
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px'}
 
 // ── FILES ───────────────────────────────────────────────────────
 let files=[];
 const fi=document.getElementById('file-input');
+const vi=document.getElementById('vid-input');
+const ai=document.getElementById('audio-input');
 const chips=document.getElementById('img-chips');
 
-fi.addEventListener('change',()=>{
-  [...fi.files].forEach(f=>{
-    if(!f.type.startsWith('image/')){showNotif('❌ Not an image: '+f.name);return}
-    if(f.size>10*1024*1024){showNotif('❌ Too large: '+f.name);return}
+function addFiles(newFiles, typeFilter){
+  [...newFiles].forEach(f=>{
+    if(typeFilter && !f.type.startsWith(typeFilter)){showNotif('ERR: Wrong file type — '+f.name,true);return}
+    if(f.size>50*1024*1024){showNotif('ERR: File too large (max 50MB) — '+f.name,true);return}
     if(files.find(x=>x.name===f.name&&x.size===f.size))return;
     files.push(f);
   });
-  fi.value='';
   renderChips();
-});
+}
+
+fi.addEventListener('change',()=>{addFiles(fi.files,'image/');fi.value='';});
+vi.addEventListener('change',()=>{addFiles(vi.files,'video/');vi.value='';});
+ai.addEventListener('change',()=>{addFiles(ai.files,'audio/');ai.value='';});
 
 function renderChips(){
   chips.innerHTML='';
@@ -219,179 +316,7 @@ function renderChips(){
     const url=URL.createObjectURL(f);
     const c=document.createElement('div');
     c.className='img-chip';
-    c.innerHTML=`<img src="${url}"/><button class="rm2" data-i="${i}">✕</button>`;
-    chips.appendChild(c);
-  });
-  chips.querySelectorAll('.rm2').forEach(b=>b.addEventListener('click',e=>{
-    e.stopPropagation();files.splice(+b.dataset.i,1);renderChips();
-  }));
-}
-
-// ── ATTACH PANEL ────────────────────────────────────────────────
-const ap=document.getElementById('attach-panel');
-document.getElementById('attach-toggle').addEventListener('click',e=>{
-  e.stopPropagation();ap.classList.toggle('open');
-});
-document.addEventListener('click',()=>ap.classList.remove('open'));
-
-// ── SEND ─────────────────────────────────────────────────────────
-const sendBtn=document.getElementById('send-btn');
-const capEl=document.getElementById('caption');
-
-sendBtn.addEventListener('click',sendMsg);
-capEl.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
-});
-
-async function sendMsg(){
-  const text=capEl.value.trim();
-  if(!text&&files.length===0) return;
-
-  sendBtn.disabled=true;
-
-  // show outgoing bubble immediately
-  const previewText=text||(files.length===1?'📷 Photo':`📷 ${files.length} Photos`);
-  addBubble({dir:'out',text:previewText,time:Date.now()/1000,sending:true});
-
-  try{
-    if(files.length===1){
-      const fd=new FormData();
-      fd.append('chat_id',CHAT);
-      fd.append('photo',files[0]);
-      if(text)fd.append('caption',text);
-      const r=await fetch(`${BASE}/sendPhoto`,{method:'POST',body:fd});
-      const j=await r.json();
-      if(!j.ok){showNotif('❌ '+j.description);removeSendingBubble();return}
-    }else if(files.length>1){
-      const media=[];const fd=new FormData();
-      files.forEach((f,i)=>{const k=`p${i}`;fd.append(k,f,f.name);const m={type:'photo',media:`attach://${k}`};if(i===0&&text)m.caption=text;media.push(m)});
-      fd.append('chat_id',CHAT);fd.append('media',JSON.stringify(media));
-      const r=await fetch(`${BASE}/sendMediaGroup`,{method:'POST',body:fd});
-      const j=await r.json();
-      if(!j.ok){showNotif('❌ '+j.description);removeSendingBubble();return}
-    }else{
-      const r=await fetch(`${BASE}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:CHAT,text})});
-      const j=await r.json();
-      if(!j.ok){showNotif('❌ '+j.description);removeSendingBubble();return}
-    }
-    // mark sent
-    markSent();
-    capEl.value='';capEl.style.height='auto';
-    files=[];renderChips();
-    setTimeout(fetchInbox,1200);
-  }catch(e){showNotif('❌ Network error');removeSendingBubble();}
-  finally{sendBtn.disabled=false;}
-}
-
-// ── CHAT BUBBLES ─────────────────────────────────────────────────
-const chatEl=document.getElementById('chat-messages');
-let lastDate='';
-
-function fmtTime(unix){
-  return new Date(unix*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-}
-function fmtDate(unix){
-  const d=new Date(unix*1000);
-  return d.toLocaleDateString([],{day:'numeric',month:'long',year:'numeric'});
-}
-
-function addBubble({dir,text,time,name,type,sending}){
-  const d=fmtDate(time);
-  if(d!==lastDate){
-    lastDate=d;
-    const sep=document.createElement('div');sep.className='date-sep';
-    sep.innerHTML=`<span>${d}</span>`;chatEl.appendChild(sep);
-  }
-  const w=document.createElement('div');
-  w.className=`bubble-wrap ${dir}`;
-  if(sending)w.dataset.sending='1';
-  const tick=dir==='out'?`<svg class="tick" viewBox="0 0 16 11"><path d="M11.071.653a.75.75 0 0 1 .076 1.058L5.185 9.08a.75.75 0 0 1-1.093.04L.808 5.786a.75.75 0 0 1 1.06-1.06l2.85 2.85L10.01.73a.75.75 0 0 1 1.061-.076z" fill-rule="nonzero"/></svg>`:'';
-  const nameHtml=dir==='in'&&name?`<div class="bub-name">${esc(name)}</div>`:'';
-  const typeHtml=type&&type!=='text'?`<span class="bub-type">${type}</span>`:'';
-  w.innerHTML=`<div class="bubble">${nameHtml}${esc(text)}<div class="bub-meta"><span class="bub-time">${fmtTime(time)}</span>${typeHtml}${tick}</div></div>`;
-  chatEl.appendChild(w);
-  chatEl.scrollTop=chatEl.scrollHeight;
-}
-
-function removeSendingBubble(){const s=chatEl.querySelector('[data-sending]');if(s)s.remove();}
-function markSent(){const s=chatEl.querySelector('[data-sending]');if(s)delete s.dataset.sending;}
-
-// ── INBOX ─────────────────────────────────────────────────────────
-let lastId=0;
-const msgList=document.getElementById('msg-list');
-const seenIds=new Set();
-
-async function fetchInbox(){
-  try{
-    const url=lastId>0?`${BASE}/getUpdates?offset=${lastId+1}&limit=50`:`${BASE}/getUpdates?limit=50`;
-    const r=await fetch(url);const j=await r.json();
-    if(!j.ok){document.getElementById('bot-status').textContent='⚠️ Token error';return;}
-    document.getElementById('bot-status').textContent='Online';
-    const updates=j.result;
-    if(!updates.length&&lastId===0){
-      msgList.innerHTML=`<div class="empty-inbox"><svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--muted);fill:none;stroke-width:1.3;stroke-linecap:round;display:block;margin:0 auto 12px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>No messages yet.<br/>Send a message to your bot.</div>`;
-      return;
-    }
-    updates.forEach(u=>{
-      if(u.update_id>lastId)lastId=u.update_id;
-      const msg=u.message||u.channel_post||u.edited_message;
-      if(!msg||seenIds.has(msg.message_id))return;
-      seenIds.add(msg.message_id);
-      renderInboxRow(msg);
-      // add to chat as incoming bubble
-      const from=msg.from||msg.sender_chat||{};
-      const name=from.first_name?`${from.first_name}${from.last_name?' '+from.last_name:''}`:(from.title||'User');
-      let text=msg.text||msg.caption||'';
-      let type='text';
-      if(msg.photo){type='photo';if(!text)text='📷 Photo'}
-      else if(msg.video){type='video';if(!text)text='🎬 Video'}
-      else if(msg.document){type='file';if(!text)text=`📎 ${msg.document.file_name||'File'}`}
-      else if(msg.voice){type='voice';if(!text)text=`🎤 Voice (${msg.voice.duration}s)`}
-      else if(msg.sticker){type='sticker';if(!text)text=`${msg.sticker.emoji||'🎭'} Sticker`}
-      else if(msg.location){type='location';if(!text)text=`📍 ${msg.location.latitude}, ${msg.location.longitude}`}
-      if(!text)text='[Unsupported message]';
-      addBubble({dir:'in',text,time:msg.date,name,type});
-    });
-  }catch(e){console.warn(e)}
-}
-
-function renderInboxRow(msg){
-  if(msgList.querySelector('.empty-inbox'))msgList.innerHTML='';
-  const from=msg.from||msg.sender_chat||{};
-  const name=from.first_name?`${from.first_name}${from.last_name?' '+from.last_name:''}`:(from.title||'User');
-  const init=(name.charAt(0)||'?').toUpperCase();
-  let preview=msg.text||msg.caption||'';
-  if(msg.photo&&!preview)preview='📷 Photo';
-  if(msg.video&&!preview)preview='🎬 Video';
-  if(msg.document&&!preview)preview=`📎 ${msg.document.file_name||'File'}`;
-  if(msg.voice&&!preview)preview='🎤 Voice';
-  if(msg.sticker&&!preview)preview=`${msg.sticker.emoji||'🎭'} Sticker`;
-  if(!preview)preview='Message';
-  const time=new Date(msg.date*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const row=document.createElement('div');
-  row.className='msg-row';
-  row.innerHTML=`
-    <div class="msg-av">${init}</div>
-    <div class="msg-info">
-      <div class="msg-top"><span class="msg-name">${esc(name)}</span><span class="msg-time2">${time}</span></div>
-      <div class="msg-preview">${esc(preview.substring(0,60))}</div>
-    </div>`;
-  msgList.prepend(row);
-}
-
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
-function showNotif(msg){
-  const n=document.createElement('div');
-  n.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1E2D3A;border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:8px;font-size:.82rem;z-index:999;animation:fin .2s ease';
-  n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3000);
-}
-
-// ── REFRESH + COUNTDOWN ──────────────────────────────────────────
-document.getElementById('refresh-btn').addEventListener('click',fetchInbox);
-fetchInbox();
-let cd=15;const cdEl=document.getElementById('countdown');
-setInterval(()=>{cd--;cdEl.textContent=cd+'s';if(cd<=0){cd=15;fetchInbox();}},1000);
-</script>
-</body>
-</html>
+    if(f.type.startsWith('image/')){
+      c.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover"/><button class="rm2" data-i="${i}">✕</button>`;
+    } else if(f.type.startsWith('video/')){
+      c.innerHTML=`<div style="width:100%;height:100%
