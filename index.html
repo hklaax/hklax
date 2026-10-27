@@ -189,6 +189,28 @@ input,select,textarea{transition:border-color .2s,box-shadow .2s}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 #up{background:linear-gradient(120deg,#2563eb,#4f46e5)}
 .toast{background:#1f2937}
+.cartbtn{display:inline-flex;align-items:center;gap:6px}
+#cartN{background:#f97316;color:#fff;font-size:11px;min-width:18px;height:18px;line-height:18px;border-radius:9px;text-align:center;padding:0 5px;display:none}
+.addb{width:100%;margin-top:auto;border:1.5px solid var(--blue);background:#fff;color:var(--blue);border-radius:8px;padding:8px;font-weight:600;font-size:13px;transition:all .2s}
+.addb:hover{background:var(--blue);color:#fff}
+.addb:disabled{opacity:.55;border-color:var(--line);color:var(--mute);cursor:default;background:#fff}
+.stp{display:flex;align-items:center;justify-content:space-between;border:1.5px solid var(--blue);border-radius:8px;overflow:hidden;width:100%;margin-top:auto}
+.stp button{border:0;background:#eef3ff;color:var(--blue);width:38px;height:34px;font-size:18px;font-weight:700}
+.stp b{font-size:14px}
+.card .bd{flex:1;display:flex;flex-direction:column}
+.card .pr{margin-bottom:10px}
+.cr{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:flex-start}
+.cr img{width:60px;height:60px;object-fit:contain;border:1px solid var(--line);border-radius:8px;flex:none}
+.cr .t{flex:1;min-width:0;font-size:14px}
+.cr .t small{display:block;color:var(--mute)}
+.cr .stp{width:112px;margin-top:8px}
+.ct2{text-align:right;font-weight:700;font-size:15px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.tot{display:flex;justify-content:space-between;align-items:center;padding:14px 0 2px;font-size:16px}
+.tot b{font-size:22px}
+.count{padding:8px 14px 0}
+.act .btn{flex:1 1 140px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}}
+@media(max-width:560px){.li{flex-wrap:wrap}.li .t{flex-basis:calc(100% - 70px)}}
 </style>
 </head>
 <body>
@@ -197,6 +219,7 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-s
   <div class="top">
     <div class="logo" id="logo">MyShop<small>Explore <b>Plus ✦</b></small></div>
     <div class="search"><input id="q" placeholder="Search for products..."><span>&#128269;</span></div>
+    <button class="abtn cartbtn" id="cartBtn">&#128722; Cart <span id="cartN">0</span></button>
     <button class="abtn" id="adminBtn">Admin</button>
   </div>
 </header>
@@ -261,6 +284,18 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-s
   <div id="camInfo" style="color:#fff;text-align:center;padding:0 10px 14px;font-size:13px"></div>
 </div></div>
 
+<div class="modal" id="cartModal"><div class="box">
+  <button class="x" id="cartClose">&times;</button>
+  <h2 style="margin-bottom:6px">Your Cart</h2>
+  <div id="cartList"></div>
+  <div id="cartFoot" style="display:none">
+    <label>Your name (optional)</label><input id="cName" placeholder="Name">
+    <div class="tot"><span>Total</span><b id="cartTot"></b></div>
+    <a class="btn wa full" id="waOrder" target="_blank" style="display:none">Send order on WhatsApp</a>
+    <button type="button" class="btn gh full" id="cCopy">Copy order list</button>
+    <button type="button" class="btn gh full" id="cClear" style="color:var(--red)">Clear cart</button>
+  </div>
+</div></div>
 <button id="up" aria-label="Back to top">&#8593;</button>
 <div class="toast" id="toast"></div>
 
@@ -291,6 +326,38 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const MAXPICS=5;
 let favs=[];try{favs=JSON.parse(localStorage.getItem("favs")||"[]")}catch{}
+let cart={},cartMsg="";try{cart=JSON.parse(localStorage.getItem("cart")||"{}")}catch{}
+function cartItems(){return Object.keys(cart).map(id=>({i:items.find(x=>x.id===id),q:cart[id]})).filter(x=>x.i)}
+function updCart(){const n=cartItems().reduce((a,x)=>a+x.q,0);$("cartN").textContent=n;$("cartN").style.display=n?"inline-block":"none"}
+function setQty(id,q){
+  if(q<=0)delete cart[id];else cart[id]=Math.min(q,99);
+  try{localStorage.setItem("cart",JSON.stringify(cart))}catch{}
+  render();if($("cartModal").classList.contains("on"))renderCart();
+}
+function cartAct(e){
+  const t=e.target.closest("[data-q],[data-a],[data-rm]");if(!t)return false;
+  e.stopPropagation();
+  if(t.dataset.a){const i=items.find(x=>x.id===t.dataset.a);if(i&&i.stock!==false){setQty(i.id,(cart[i.id]||0)+1);toast("Added to cart")}}
+  else if(t.dataset.rm)setQty(t.dataset.rm,0);
+  else setQty(t.dataset.id,(cart[t.dataset.id]||0)+(+t.dataset.q));
+  return true;
+}
+function cartBtn(i){
+  if(i.stock===false)return '<button class="addb" disabled>Out of stock</button>';
+  const q=cart[i.id];
+  return q?`<div class="stp"><button data-q="-1" data-id="${i.id}">&minus;</button><b>${q}</b><button data-q="1" data-id="${i.id}">+</button></div>`:`<button class="addb" data-a="${i.id}">Add to Cart</button>`;
+}
+function renderCart(){
+  const L=cartItems();let tot=0;
+  $("cartList").innerHTML=L.length?L.map(({i,q})=>{tot+=i.price*q;return `<div class="cr"><img src="${i.image||""}" alt=""><div class="t"><b>${esc(i.name)}</b><small>${CURRENCY}${i.price} each</small><div class="stp"><button data-q="-1" data-id="${i.id}">&minus;</button><b>${q}</b><button data-q="1" data-id="${i.id}">+</button></div></div><div class="ct2">${CURRENCY}${i.price*q}<button class="mini del" data-rm="${i.id}">Remove</button></div></div>`}).join(""):'<div class="empty" style="padding:30px">Your cart is empty.<br>Add items from the shop.</div>';
+  $("cartFoot").style.display=L.length?"block":"none";
+  if(!L.length)return;
+  $("cartTot").textContent=CURRENCY+tot;
+  const nm=$("cName").value.trim();
+  cartMsg="New order"+(nm?" from "+nm:"")+":\n"+L.map(({i,q},k)=>`${k+1}. ${i.name} x${q} = ${CURRENCY}${i.price*q}`).join("\n")+"\nTotal: "+CURRENCY+tot;
+  const a=$("waOrder");
+  if(WHATSAPP){a.style.display="block";a.href="https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(cartMsg)}else a.style.display="none";
+}
 function toggleFav(id){
   favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
   try{localStorage.setItem("favs",JSON.stringify(favs))}catch{}
@@ -319,4 +386,216 @@ function compressImage(file,maxSide=640,targetKB=40){
       for(let t=0;t<6;t++){
         const c=document.createElement("canvas");c.width=w;c.height=h;
         const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);
-        let q=.7;d=c.toDataURL("image/jpeg",q
+        let q=.7;d=c.toDataURL("image/jpeg",q);
+        while(d.length*.75/1024>targetKB&&q>.3){q-=.08;d=c.toDataURL("image/jpeg",q)}
+        if(d.length*.75/1024<=targetKB||Math.max(w,h)<=320)break;
+        w=Math.round(w*.85);h=Math.round(h*.85);
+      }
+      URL.revokeObjectURL(url);res({data:d,before:file.size,after:Math.round(d.length*.75)});
+    };
+    img.onerror=rej;img.src=url;
+  });
+}
+$("camBtn").onclick=()=>openCam();
+$("galBtn").onclick=()=>$("fImg").click();
+async function addFiles(fs){
+  if(!fs.length)return;
+  const room=MAXPICS-pics.length;
+  if(room<=0)return toast("Maximum "+MAXPICS+" photos");
+  if(fs.length>room)toast("Only "+room+" more photo(s) allowed");
+  $("pinfo").textContent="Compressing...";
+  for(const f of fs.slice(0,room)){
+    try{const r=await compressImage(f);pics.push(r.data)}catch{toast("Could not read a photo")}
+  }
+  renderThumbs();
+}
+$("fImg").onchange=$("fCam").onchange=e=>{const fs=[...e.target.files];e.target.value="";addFiles(fs)};
+
+/* ---- in-page live camera (works inside app/WebView when camera permission is granted) ---- */
+let stream=null,facing="environment";
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+function updCam(msg){
+  $("camThumbs").innerHTML=pics.map(p=>`<img src="${p}" alt="">`).join("");
+  $("camInfo").innerHTML=(msg?'<b style="color:#4caf50;font-size:15px">&#10003; '+msg+'</b><br>':'')+pics.length+"/"+MAXPICS+" photos added";
+  $("shot").innerHTML="&#128248; Capture"+(pics.length?" ("+pics.length+")":"");
+}
+function closeCam(){stopCam();$("camModal").classList.remove("on")}
+async function openCam(){
+  if(pics.length>=MAXPICS)return toast("Maximum "+MAXPICS+" photos");
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return $("fCam").click();
+  try{
+    stopCam();
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:960}},audio:false});
+    $("cv").srcObject=stream;
+    try{await $("cv").play()}catch{}
+    updCam();
+    $("camModal").classList.add("on");
+  }catch(e){console.error(e);toast("Camera blocked. Opening file picker instead");$("fCam").click()}
+}
+$("flip").onclick=()=>{facing=facing==="environment"?"user":"environment";openCam()};
+$("camDone").onclick=closeCam;
+$("shot").onclick=()=>{
+  const v=$("cv");if(!v.videoWidth)return toast("Camera not ready");
+  const fl=$("flash");fl.classList.remove("go");void fl.offsetWidth;fl.classList.add("go");if(navigator.vibrate)navigator.vibrate(60);
+  const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0);
+  c.toBlob(async b=>{
+    try{const r=await compressImage(b);pics.push(r.data);renderThumbs();updCam("Photo "+pics.length+" saved")}
+    catch{toast("Capture failed")}
+    if(pics.length>=MAXPICS){toast(MAXPICS+" photos added");closeCam()}
+  },"image/jpeg",.92);
+};
+function renderThumbs(){
+  $("thumbs").innerHTML=pics.map((p,k)=>`<div class="th"><img src="${p}" data-c="${k}" alt=""><button type="button" data-r="${k}">&times;</button><em>Cover</em></div>`).join("");
+  const kb=Math.round(pics.reduce((a,p)=>a+p.length*.75,0)/1024);
+  $("pinfo").textContent=pics.length?`${pics.length}/${MAXPICS} photos, total ${kb} KB. Tap a photo to make it the cover.`:"";
+}
+$("thumbs").onclick=e=>{
+  const r=e.target.dataset.r,c=e.target.dataset.c;
+  if(r!==undefined){pics.splice(+r,1);renderThumbs()}
+  else if(c!==undefined&&+c>0){pics.unshift(pics.splice(+c,1)[0]);renderThumbs()}
+};
+
+/* ---- live data ---- */
+db.collection("items").orderBy("createdAt","desc").onSnapshot(s=>{
+  items=s.docs.map(d=>({id:d.id,...d.data()}));
+  renderCats();render();renderAdmin();
+},e=>{console.error(e);$("grid").innerHTML='<div class="empty">'+(e.code==="permission-denied"?"<b>Access denied</b>Open Firebase, then Firestore, then Rules, and publish the rules.":"<b>Could not connect</b>Check your internet and Firebase config.")+'</div>'});
+
+function renderCats(){
+  const cs=[...new Set(items.map(i=>i.category).filter(Boolean))].sort();
+  $("cats").innerHTML=['<button class="chip'+(cat===""?' on':'')+'" data-c="">All</button>','<button class="chip'+(cat==="__fav"?' on':'')+'" data-c="__fav">&#9829; Saved'+(favs.length?' ('+favs.length+')':'')+'</button>']
+    .concat(cs.map(c=>`<button class="chip${cat===c?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`)).join("");
+  $("catList").innerHTML=cs.map(c=>`<option value="${esc(c)}">`).join("");
+}
+$("cats").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cat=b.dataset.c;renderCats();render()};
+document.querySelector(".sort").onclick=e=>{
+  const b=e.target.closest("button");if(!b)return;sort=b.dataset.s;
+  document.querySelectorAll(".sort button").forEach(x=>x.classList.toggle("on",x===b));render();
+};
+$("q").oninput=render;
+
+function render(){
+  const q=$("q").value.toLowerCase().trim();
+  let l=items.filter(i=>(!cat||(cat==="__fav"?favs.includes(i.id):i.category===cat))&&(!q||(i.name+" "+(i.category||"")).toLowerCase().includes(q)));
+  if(sort==="low")l.sort((a,b)=>a.price-b.price);
+  else if(sort==="high")l.sort((a,b)=>b.price-a.price);
+  else if(sort==="disc")l.sort((a,b)=>disc(b)-disc(a));
+  $("count").textContent=l.length+" item"+(l.length===1?"":"s");updCart();
+  $("stats").innerHTML=`<span>${items.length} items</span><span>${new Set(items.map(i=>i.category).filter(Boolean)).size} categories</span>`+(items.some(i=>disc(i))?`<span>Discounts available</span>`:"");
+  $("grid").innerHTML=l.length?l.map(i=>`
+   <div class="card" data-id="${i.id}">
+    <div class="im"><img src="${i.image||""}" alt="" loading="lazy" onload="this.classList.add('ld')" onerror="this.classList.add('ld')">${isNew(i)?'<span class="new">NEW</span>':''}<button class="fav${favs.includes(i.id)?' on':''}" data-f="${i.id}" aria-label="Save">${favs.includes(i.id)?'&#9829;':'&#9825;'}</button>${(i.images||[]).length>1?`<span class="cnt">${i.images.length} photos</span>`:''}${i.stock===false?'<div class="oos">Out of Stock</div>':''}</div>
+    <div class="bd"><div class="ct">${esc(i.category||"")}</div><div class="nm">${esc(i.name)}</div>
+    <div class="pr"><b>${CURRENCY}${i.price}</b>${disc(i)?`<s>${CURRENCY}${i.mrp}</s><em>${disc(i)}% off</em>`:''}</div>${cartBtn(i)}</div>
+   </div>`).join(""):`<div class="empty">${items.length?(cat==="__fav"?'No saved items yet. Tap the heart on any item.':'No items match your search.'):'<div style="font-size:42px">&#128717;</div><b>Items coming soon</b>Please check back shortly.'}</div>`;
+}
+
+/* ---- detail ---- */
+$("grid").onclick=e=>{
+  const f=e.target.closest(".fav");if(f){e.stopPropagation();toggleFav(f.dataset.f);return}
+  if(cartAct(e))return;
+  const c=e.target.closest(".card");if(!c)return;
+  const i=items.find(x=>x.id===c.dataset.id);if(!i)return;
+  const msg=encodeURIComponent(`Hi, I'm interested in ${i.name} (${CURRENCY}${i.price})`);
+  const gl=i.images&&i.images.length?i.images:[i.image||""];
+  $("det").innerHTML=`<div><img id="gMain" src="${gl[0]}" alt="">${gl.length>1?`<div class="gth">${gl.map((g,k)=>`<img src="${g}" data-k="${k}" class="${k?'':'on'}" alt="">`).join("")}</div>`:''}</div><div>
+    <div class="ct">${esc(i.category||"")}</div><h2>${esc(i.name)}</h2>
+    <div class="pr"><b>${CURRENCY}${i.price}</b>${disc(i)?`<s>${CURRENCY}${i.mrp}</s><em>${disc(i)}% off</em>`:''}</div>
+    <span class="stk" style="color:${i.stock===false?'var(--red)':'var(--green)'}">${i.stock===false?'Out of stock':'In stock'}</span>
+    ${i.desc?`<p>${esc(i.desc)}</p>`:''}
+    <div class="act"><button class="btn or" id="dAdd"${i.stock===false?' disabled':''}>&#128722; Add to Cart</button>${WHATSAPP?`<a class="btn wa" target="_blank" href="https://wa.me/${esc(WHATSAPP)}?text=${msg}">Enquire on WhatsApp</a>`:''}
+    ${PHONE?`<a class="btn or" href="tel:${esc(PHONE)}">Call Shop</a>`:''}<button class="btn gh" id="shr">Share</button></div></div>`;
+  $("shr").onclick=async()=>{
+    const t=`${i.name} - ${CURRENCY}${i.price} at ${SHOP_NAME}`;
+    try{ if(navigator.share) await navigator.share({title:i.name,text:t,url:location.href});
+         else{await navigator.clipboard.writeText(t+" "+location.href);toast("Copied")} }catch{}
+  };
+  let sx=0,gi=0;const gm=$("gMain"),setG=k=>{gi=(k+gl.length)%gl.length;gm.src=gl[gi];document.querySelectorAll(".gth img").forEach((x,j)=>x.classList.toggle("on",j===gi))};
+  gm.ontouchstart=e=>{sx=e.touches[0].clientX};
+  gm.ontouchend=e=>{const d=e.changedTouches[0].clientX-sx;if(gl.length>1&&Math.abs(d)>40)setG(gi+(d<0?1:-1))};
+  document.querySelectorAll(".gth img").forEach(t=>t.onclick=()=>setG(+t.dataset.k));
+  $("dAdd").onclick=()=>{setQty(i.id,(cart[i.id]||0)+1);toast("Added to cart")};
+  $("itemModal").classList.add("on");document.body.classList.add("lock");
+};
+const closeAll=()=>{stopCam();document.querySelectorAll(".modal").forEach(m=>m.classList.remove("on"));document.body.classList.remove("lock")};
+$("mClose").onclick=closeAll;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAll()});
+$("itemModal").onclick=e=>{if(e.target.id==="itemModal")closeAll()};
+
+/* ---- admin ---- */
+function showAdmin(on){
+  $("admin").style.display=on?"block":"none";$("store").style.display=on?"none":"block";
+  $("adminBtn").textContent=on?"View Shop":"Admin";window.scrollTo(0,0);
+}
+$("adminBtn").onclick=()=>{
+  if(isAdmin){showAdmin($("admin").style.display!=="block")}
+  else{$("loginModal").classList.add("on");$("lPass").focus()}
+};
+$("loginClose").onclick=()=>$("loginModal").classList.remove("on");
+$("loginBtn").onclick=()=>{
+  if($("lPass").value===ADMIN_PASSWORD){isAdmin=true;$("lPass").value="";$("loginModal").classList.remove("on");showAdmin(true)}
+  else toast("Wrong password");
+};
+$("lPass").onkeydown=e=>{if(e.key==="Enter")$("loginBtn").click()};
+$("logoutBtn").onclick=()=>{isAdmin=false;showAdmin(false)};
+
+function resetForm(){
+  ["editId","fName","fPrice","fMrp","fCat","fImg","fCam","fDesc"].forEach(i=>$(i).value="");
+  $("fStock").checked=true;pics=[];renderThumbs();
+  $("saveBtn").textContent="Save Item";$("formTitle").textContent="Add New Item";$("cancelEdit").style.display="none";
+}
+$("cancelEdit").onclick=resetForm;
+
+$("saveBtn").onclick=async()=>{
+  const name=$("fName").value.trim(),price=$("fPrice").value,id=$("editId").value,mrp=$("fMrp").value;
+  if(!name||price==="")return toast("Enter name and price");
+  if(!pics.length)return toast("Add at least one photo");
+  if(pics.reduce((a,p)=>a+p.length,0)>900000)return toast("Photos too large, remove one");
+  const data={name,price:Number(price),mrp:mrp?Number(mrp):0,category:$("fCat").value.trim(),desc:$("fDesc").value.trim(),stock:$("fStock").checked};
+  data.images=pics;data.image=pics[0];
+  $("saveBtn").disabled=true;
+  try{
+    if(id)await db.collection("items").doc(id).update(data);
+    else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection("items").add(data)}
+    toast("Saved");resetForm();
+  }catch(e){console.error(e);toast(e.code==="permission-denied"?"Permission denied. Publish Firestore rules first.":"Save failed: "+(e.message||"try again"))}
+  $("saveBtn").disabled=false;
+};
+
+function renderAdmin(){
+  const aq=($("aq").value||"").toLowerCase(),L=items.filter(i=>!aq||(i.name+" "+(i.category||"")).toLowerCase().includes(aq));
+  const out=items.filter(i=>i.stock===false).length;
+  $("n").textContent=items.length;
+  $("stg").innerHTML=`<div><b>${items.length}</b><span>Total</span></div><div><b>${items.length-out}</b><span>In stock</span></div><div><b>${out}</b><span>Out of stock</span></div><div><b>${new Set(items.map(i=>i.category).filter(Boolean)).size}</b><span>Categories</span></div>`;
+  $("adminList").innerHTML=L.length?L.map(i=>`
+   <div class="li"><img src="${i.image||""}" alt="">
+    <div class="t"><b>${esc(i.name)}</b><small>${CURRENCY}${i.price}${disc(i)?` (MRP ${CURRENCY}${i.mrp})`:''} · ${esc(i.category||"-")} · ${i.stock===false?'Out of stock':'In stock'}</small></div>
+    <button class="mini" data-s="${i.id}">${i.stock===false?'Set in stock':'Set out'}</button>
+    <button class="mini" data-e="${i.id}">Edit</button>
+    <button class="mini del" data-d="${i.id}">Delete</button></div>`).join(""):'<div class="empty">No items yet.</div>';
+}
+$("aq").oninput=renderAdmin;
+$("cartBtn").onclick=()=>{renderCart();$("cartModal").classList.add("on");document.body.classList.add("lock")};
+$("cartClose").onclick=closeAll;
+$("cartModal").onclick=e=>{if(e.target.id==="cartModal")closeAll()};
+$("cartList").onclick=cartAct;
+$("cName").oninput=renderCart;
+$("cCopy").onclick=async()=>{try{await navigator.clipboard.writeText(cartMsg);toast("Order list copied")}catch{toast("Could not copy")}};
+$("cClear").onclick=()=>{if(confirm("Clear the cart?")){cart={};try{localStorage.setItem("cart","{}")}catch{}render();renderCart()}};
+addEventListener("scroll",()=>$("up").classList.toggle("on",scrollY>500));
+$("up").onclick=()=>scrollTo({top:0,behavior:"smooth"});
+$("foot").innerHTML=`<div style="font-size:18px;font-weight:700;color:#fff">${esc(SHOP_NAME)}</div><div style="opacity:.8;margin:4px 0 12px">Quality products at the best prices</div>${ADDRESS?`<div>&#128205; ${esc(ADDRESS)}</div>`:''}<div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${PHONE?`<a class="btn or" href="tel:${esc(PHONE)}">&#128222; Call</a>`:''}${WHATSAPP?`<a class="btn wa" target="_blank" href="https://wa.me/${esc(WHATSAPP)}">WhatsApp</a>`:''}</div><div style="margin-top:14px;opacity:.6">&copy; ${new Date().getFullYear()} ${esc(SHOP_NAME)}</div>`;
+$("adminList").onclick=async e=>{
+  const {e:eid,d:did,s:sid}=e.target.dataset;
+  if(sid){try{const i=items.find(x=>x.id===sid);await db.collection("items").doc(sid).update({stock:i.stock===false})}catch{toast("Could not update")}}
+  if(eid){const i=items.find(x=>x.id===eid);
+    $("editId").value=i.id;$("fName").value=i.name;$("fPrice").value=i.price;$("fMrp").value=i.mrp||"";
+    $("fCat").value=i.category||"";$("fDesc").value=i.desc||"";$("fStock").checked=i.stock!==false;
+    pics=(i.images&&i.images.length?i.images:(i.image?[i.image]:[])).slice();renderThumbs();
+    $("saveBtn").textContent="Update Item";$("formTitle").textContent="Edit Item";$("cancelEdit").style.display="block";scrollTo({top:0,behavior:"smooth"})}
+  if(did&&confirm("Delete this item?")){try{await db.collection("items").doc(did).delete();toast("Deleted")}catch{toast("Could not delete")}}
+};
+</script>
+</body>
+</html>
