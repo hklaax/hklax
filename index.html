@@ -1,120 +1,322 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>HKLA X</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #111;
-            color: white;
-            text-align: center;
-            margin: 0;
-        }
-
-        /* Hamburger Icon */
-        .menu-icon {
-            font-size: 28px;
-            cursor: pointer;
-            position: absolute;
-            left: 15px;
-            top: 15px;
-        }
-
-        /* Sidebar Menu */
-        .sidebar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: #222;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 60px;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 12px;
-            color: white;
-            text-decoration: none;
-            text-align: left;
-        }
-
-        .sidebar a:hover {
-            background: #444;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 25px;
-            cursor: pointer;
-        }
-
-        input {
-            padding: 10px;
-            width: 60%;
-            margin: 20px;
-        }
-
-        .movie {
-            margin: 15px;
-        }
-
-        a {
-            color: yellow;
-            text-decoration: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<title>My Shop</title>
+<style>
+:root{--blue:#2563eb;--yel:#fde68a;--green:#16a34a;--bg:#f4f6fb;--ink:#1f2937;--mute:#6b7280;--line:#e5e7eb;--red:#dc2626}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+button{font-family:inherit;cursor:pointer}
+/* header */
+header{position:sticky;top:0;z-index:20;background:var(--blue);box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.top{max-width:1200px;margin:auto;padding:10px 14px;display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.logo{color:#fff;font-weight:700;font-size:21px;font-style:italic;white-space:nowrap}
+.logo small{display:block;font-size:10px;font-weight:400;color:#fff;opacity:.9}
+.logo small b{color:var(--yel)}
+.search{flex:1;min-width:0;display:flex;background:#fff;border-radius:4px;overflow:hidden}
+.search input{flex:1;border:0;padding:10px 14px;font-size:15px;outline:none;min-width:0}
+.search span{padding:0 14px;display:flex;align-items:center;color:var(--blue);font-size:18px}
+.abtn{background:#fff;color:var(--blue);border:0;padding:9px 16px;font-weight:600;border-radius:2px;font-size:14px}
+/* categories */
+.cats{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.cats div{max-width:1200px;margin:auto;display:flex;gap:6px;overflow-x:auto;padding:10px 14px;scrollbar-width:none}
+.cats div::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:none;padding:8px 14px;font-size:14px;font-weight:500;color:var(--ink);border-bottom:3px solid transparent}
+.chip.on{color:var(--blue);border-bottom-color:var(--blue)}
+/* banner */
+.banner{max-width:1200px;margin:10px auto 0;padding:0 14px}
+.banner div{background:linear-gradient(100deg,#2874f0,#6a5af9);color:#fff;border-radius:4px;padding:22px 20px}
+.banner h1{font-size:clamp(20px,4vw,30px)}
+.banner p{opacity:.9;font-size:14px;margin-top:4px}
+/* sort */
+.sort{max-width:1200px;margin:10px auto 0;padding:0 14px}
+.sort div{background:#fff;padding:10px 14px;display:flex;align-items:center;gap:6px;overflow-x:auto;border-radius:2px;scrollbar-width:none}
+.sort b{font-size:14px;margin-right:6px;flex:none}
+.sort button{flex:none;border:0;background:none;font-size:14px;padding:6px 10px;color:var(--ink);border-bottom:2px solid transparent}
+.sort button.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.count{max-width:1200px;margin:auto;padding:8px 16px 0;font-size:13px;color:var(--mute)}
+/* grid */
+.grid{max-width:1200px;margin:auto;padding:8px 14px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.card{background:#fff;border-radius:2px;position:relative;cursor:pointer;display:flex;flex-direction:column;transition:box-shadow .2s}
+.card:hover{box-shadow:0 3px 14px rgba(0,0,0,.18)}
+.card .im{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:12px;position:relative}
+.card img{max-width:100%;max-height:100%;object-fit:contain}
+.card .bd{padding:6px 12px 14px}
+.nm{font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+.ct{font-size:12px;color:var(--mute);margin-bottom:2px}
+.pr{margin-top:6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pr b{font-size:17px}
+.pr s{font-size:13px;color:var(--mute)}
+.pr em{font-style:normal;font-size:13px;font-weight:600;color:var(--green)}
+.oos{position:absolute;inset:0;background:rgba(255,255,255,.65);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--red);font-size:14px}
+.new{position:absolute;top:8px;left:8px;background:var(--green);color:#fff;font-size:11px;padding:2px 7px;border-radius:2px;font-weight:600}
+.empty{grid-column:1/-1;background:#fff;text-align:center;padding:60px 16px;color:var(--mute)}
+footer{background:#172337;color:#c2c2c2;padding:22px 16px;text-align:center;font-size:13px;line-height:1.7}
+footer a{color:var(--yel);text-decoration:none}
+/* modals */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:14px;z-index:50}
+.modal.on{display:flex}
+.box{background:#fff;border-radius:4px;max-width:760px;width:100%;max-height:92vh;overflow:auto;padding:20px;position:relative}
+.box.sm{max-width:380px}
+.x{position:absolute;right:10px;top:8px;border:0;background:none;font-size:26px;color:var(--mute)}
+.det{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:620px){.det{grid-template-columns:1fr}}
+.det img{width:100%;max-height:380px;object-fit:contain}
+.det h2{font-size:20px;font-weight:500;margin:4px 0 8px}
+.det .pr b{font-size:26px}
+.det p{font-size:14px;color:#444;margin-top:14px;line-height:1.55;white-space:pre-wrap}
+.stk{display:inline-block;margin-top:10px;font-size:13px;font-weight:600}
+.act{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;padding:12px 18px;border-radius:2px;font-size:14px;font-weight:600;color:#fff;background:var(--blue);text-decoration:none;display:inline-block;text-align:center}
+.btn.wa{background:#25d366}
+.btn.or{background:#fb641b}
+.btn.gh{background:#fff;color:var(--blue);border:1px solid var(--line)}
+.btn.full{width:100%;margin-top:12px}
+.btn:disabled{opacity:.5}
+/* admin */
+#admin{display:none;max-width:1000px;margin:14px auto;padding:0 14px 50px}
+.panel{background:#fff;padding:18px;border-radius:2px;margin-bottom:12px}
+.panel h2{font-size:17px;margin-bottom:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:2px;font-size:14px;font-family:inherit}
+textarea{min-height:70px;resize:vertical}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px}
+.chk input{width:auto}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.th{position:relative;width:72px;height:72px;border:1px solid var(--line);border-radius:3px}
+.th img{width:100%;height:100%;object-fit:cover;border-radius:3px;cursor:pointer}
+.th button{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;border:0;background:var(--red);color:#fff;font-size:15px;line-height:22px;padding:0}
+.th em{position:absolute;bottom:0;left:0;right:0;background:rgba(40,116,240,.92);color:#fff;font-size:10px;text-align:center;font-style:normal;border-radius:0 0 3px 3px}
+.th:not(:first-child) em{display:none}
+.pinfo{font-size:12px;color:var(--mute);margin-top:6px}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.li img{width:52px;height:52px;object-fit:contain;border:1px solid var(--line)}
+.li .t{flex:1;font-size:14px;min-width:0}
+.li .t small{display:block;color:var(--mute)}
+.mini{border:1px solid var(--line);background:#fff;padding:6px 10px;font-size:12px;border-radius:2px}
+.mini.del{color:var(--red)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 18px;border-radius:2px;font-size:14px;display:none;z-index:99}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body.lock{overflow:hidden}
+.card img{opacity:0;transition:opacity .35s}
+.card img.ld{opacity:1}
+.card:active{transform:scale(.99)}
+.sk{background:#fff;padding:12px}
+.sk i{display:block;border-radius:3px;background:linear-gradient(90deg,#eee 25%,#f7f7f7 37%,#eee 63%);background-size:400% 100%;animation:sh 1.3s infinite}
+.sk i:nth-child(1){aspect-ratio:1/1}
+.sk i:nth-child(2){height:12px;margin-top:10px;width:85%}
+.sk i:nth-child(3){height:14px;margin-top:8px;width:45%}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+.modal.on .box{animation:up .22s ease}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.cnt{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px}
+.gth{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.gth img{width:56px;height:56px;max-height:none;flex:none;object-fit:cover;border:2px solid transparent;border-radius:3px;cursor:pointer}
+.gth img.on{border-color:var(--blue)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin:6px 0 2px}
+@media(max-width:620px){
+ .logo{flex:1}
+ .search{order:3;flex:1 0 100%}
+ .top{padding:8px 12px}
+ .banner{margin-top:8px;padding:0 8px}.banner div{padding:16px}
+ .sort{padding:0 8px}.grid{padding:6px 8px 30px;gap:6px}
+ .card .bd{padding:4px 10px 12px}
+ .modal{align-items:flex-end;padding:0}
+ .box,.box.sm{max-width:none;border-radius:14px 14px 0 0}
+}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#flash.go{animation:fl .4s ease-out}
+@keyframes fl{0%{opacity:.95}100%{opacity:0}}
+#camThumbs{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;justify-content:center}
+#camThumbs img{width:48px;height:48px;object-fit:cover;border-radius:4px;border:2px solid #fff;flex:none}
+.card{border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.14)}
+.card .im{background:#fafafa}
+.pr b{font-size:18px}
+.cats div{gap:8px}
+.chip{border:1px solid var(--line);border-radius:20px;background:#fff;padding:7px 15px;font-size:13px}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sort div{border-radius:8px}
+.abtn{border-radius:20px}
+.btn{border-radius:8px}
+.panel{border-radius:12px}
+.banner div{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(120deg,#2874f0 0%,#5b5bf0 60%,#8e54e9 100%);padding:24px 22px}
+.banner div::after{content:"";position:absolute;right:-30px;top:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.13)}
+.banner .stats{display:flex;gap:8px;margin-top:12px;opacity:1;flex-wrap:wrap}
+.stats span{background:rgba(255,255,255,.2);padding:4px 11px;border-radius:14px;font-size:12px}
+.fav{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:0;background:#fff;color:#aaa;font-size:17px;line-height:32px;padding:0;box-shadow:0 1px 5px rgba(0,0,0,.25);z-index:2}
+.fav.on{color:#e91e63}
+#up{position:fixed;right:14px;bottom:18px;width:42px;height:42px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:20px;box-shadow:0 3px 10px rgba(0,0,0,.3);display:none;z-index:30}
+#up.on{display:block}
+.stg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stg div{background:#f1f6ff;border-radius:8px;padding:10px 4px;text-align:center}
+.stg b{display:block;font-size:20px;color:var(--blue)}
+.stg span{font-size:11px;color:var(--mute)}
+@media(max-width:420px){.stg{grid-template-columns:repeat(2,1fr)}}
+/* ===== smooth colour theme ===== */
+header{background:linear-gradient(120deg,#2563eb,#4f46e5);box-shadow:0 2px 14px rgba(37,99,235,.28)}
+.abtn{background:rgba(255,255,255,.96);color:#2563eb;transition:all .2s}
+.abtn:hover{background:#fff;transform:translateY(-1px)}
+.search{box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.cats{box-shadow:0 1px 0 var(--line)}
+.chip{transition:all .2s}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.on,.chip.on:hover{background:linear-gradient(120deg,#2563eb,#4f46e5);border-color:transparent;color:#fff}
+.banner div{background:linear-gradient(120deg,#2563eb 0%,#4f46e5 55%,#7c3aed 100%)}
+.sort button{transition:all .2s}
+.card{border:1px solid #eceff5;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card:hover{box-shadow:0 10px 26px rgba(37,99,235,.13);border-color:#dbe4ff}
+.card .im{background:linear-gradient(180deg,#fafbff,#f1f4fb)}
+.new{background:linear-gradient(120deg,#16a34a,#22c55e)}
+.oos{background:rgba(255,255,255,.72)}
+.btn{background:linear-gradient(120deg,#2563eb,#4f46e5);box-shadow:0 2px 6px rgba(37,99,235,.25);transition:all .2s}
+.btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn.or{background:linear-gradient(120deg,#f97316,#fb923c);box-shadow:0 2px 6px rgba(249,115,22,.3)}
+.btn.wa{background:linear-gradient(120deg,#16a34a,#22c55e);box-shadow:0 2px 6px rgba(34,197,94,.3)}
+.btn.gh{background:#fff;color:var(--blue);border:1px solid #dbe4ff;box-shadow:none}
+footer{background:linear-gradient(160deg,#111827,#1e293b)}
+.stg div{background:#eef3ff}
+.th em{background:rgba(37,99,235,.92)}
+.mini{transition:all .2s}
+.mini:hover{background:#f3f6ff;border-color:#c7d4ff}
+input,select,textarea{transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+#up{background:linear-gradient(120deg,#2563eb,#4f46e5)}
+.toast{background:#1f2937}
+</style>
 </head>
-
 <body>
 
-<!-- Hamburger Button -->
-<span class="menu-icon" onclick="openMenu()">☰</span>
+<header>
+  <div class="top">
+    <div class="logo" id="logo">MyShop<small>Explore <b>Plus ✦</b></small></div>
+    <div class="search"><input id="q" placeholder="Search for products..."><span>&#128269;</span></div>
+    <button class="abtn" id="adminBtn">Admin</button>
+  </div>
+</header>
 
-<!-- Sidebar -->
-<div id="sidebar" class="sidebar">
-    <span class="close-btn" onclick="closeMenu()">×</span>
-    <a href="movies main.html">XMovies</a>
-    <a href="#">Files</a>
-    <a href="#">Settings</a>
+<div id="store">
+  <div class="cats"><div id="cats"></div></div>
+  <div class="banner"><div><h1 id="bTitle">Welcome to our shop</h1><p>Best prices on all items. Visit us in store!</p><p class="stats" id="stats"></p></div></div>
+  <div class="sort"><div>
+    <b>Sort By</b>
+    <button data-s="new" class="on">Newest</button>
+    <button data-s="low">Price: Low to High</button>
+    <button data-s="high">Price: High to Low</button>
+    <button data-s="disc">Discount</button>
+  </div></div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"><div class="empty">Loading...</div></div>
+  <footer id="foot"></footer>
 </div>
 
-<h1>HKLA X</h1>
-
-<input type="text" id="search" placeholder="Search Files" onkeyup="searchMovie()">
-
-<div id="movies">
-    <div class="movie"><a href="twrp.html">TWRP</a></div>
-    <div class="movie"><a href="custom rom.html">CUSTOM ROM</a></div>
-    <div class="movie"><a href="bootloader unloack tool .html">BOOTLOADER UNLOCK TOOL</a></div>
-    <div class="movie"><a href="stock rom.html">STOCK ROM</a></div>
+<div id="admin">
+  <div class="panel">
+    <h2 id="formTitle">Add New Item</h2>
+    <input type="hidden" id="editId">
+    <label>Item name</label><input id="fName" placeholder="e.g. Cotton Shirt">
+    <div class="row">
+      <div><label>Selling price</label><input id="fPrice" type="number" min="0" placeholder="499"></div>
+      <div><label>MRP (optional, shows discount)</label><input id="fMrp" type="number" min="0" placeholder="999"></div>
+    </div>
+    <div class="row">
+      <div><label>Category</label><input id="fCat" list="catList" placeholder="e.g. Clothing"><datalist id="catList"></datalist></div>
+      <div><label>Product photos (up to 5, highly compressed)</label>
+      <div class="act" style="margin-top:0"><button type="button" class="btn or" id="camBtn" style="flex:1">&#128247; Take Photo</button><button type="button" class="btn gh" id="galBtn" style="flex:1">Gallery</button></div>
+      <input id="fImg" type="file" accept="image/*" multiple hidden><input id="fCam" type="file" accept="image/*" capture="environment" hidden></div>
+    </div>
+    <div class="thumbs" id="thumbs"></div><div class="pinfo" id="pinfo"></div>
+    <label>Description (optional)</label><textarea id="fDesc" placeholder="Size, colour, material..."></textarea>
+    <label class="chk"><input type="checkbox" id="fStock" checked> In stock</label>
+    <button class="btn full" id="saveBtn">Save Item</button>
+    <button class="btn gh full" id="cancelEdit" style="display:none">Cancel edit</button>
+  </div>
+  <div class="panel"><h2>Overview</h2><div class="stg" id="stg"></div></div>
+  <div class="panel"><h2>All Items (<span id="n">0</span>)</h2><input id="aq" placeholder="Search your items..." style="margin-bottom:6px"><div id="adminList"></div></div>
+  <button class="btn gh" id="logoutBtn">Logout</button>
 </div>
 
+<div class="modal" id="loginModal"><div class="box sm">
+  <button class="x" id="loginClose">&times;</button>
+  <h2 style="margin-bottom:6px">Admin Login</h2>
+  <label>Password</label><input id="lPass" type="password" placeholder="Admin password">
+  <button class="btn full" id="loginBtn">Login</button>
+</div></div>
+
+<div class="modal" id="itemModal"><div class="box">
+  <button class="x" id="mClose">&times;</button>
+  <div class="det" id="det"></div>
+</div></div>
+
+<div class="modal" id="camModal"><div class="box" style="padding:0;background:#000;max-width:520px">
+  <div style="position:relative"><video id="cv" playsinline muted autoplay style="width:100%;max-height:60vh;background:#000;display:block"></video><div id="flash"></div></div>
+  <div class="act" style="padding:12px;justify-content:center;margin:0"><button type="button" class="btn gh" id="flip">Flip</button><button type="button" class="btn or" id="shot">&#128248; Capture</button><button type="button" class="btn" id="camDone">Done</button></div>
+  <div id="camThumbs"></div>
+  <div id="camInfo" style="color:#fff;text-align:center;padding:0 10px 14px;font-size:13px"></div>
+</div></div>
+
+<button id="up" aria-label="Back to top">&#8593;</button>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-function searchMovie() {
-    let input = document.getElementById("search").value.toLowerCase();
-    let movies = document.getElementsByClassName("movie");
+/* ================= SETTINGS ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBFqIYBZ53yKARuZdyjZYZRz2fW3E6PHAk",
+  authDomain: "hkla-d6c45.firebaseapp.com",
+  projectId: "hkla-d6c45",
+  storageBucket: "hkla-d6c45.firebasestorage.app",
+  messagingSenderId: "506214648818",
+  appId: "1:506214648818:web:bac78ebca601360c7ef96b"
+};
+const SHOP_NAME     = "MyShop";          // your shop name
+const ADMIN_PASSWORD= "sameerkhan11";            // change this
+const CURRENCY      = "₹";
+const WHATSAPP      = "";                // e.g. "919876543210" (country code + number, no +). Empty = hide button
+const PHONE         = "";                // shown in footer, e.g. "+91 98765 43210"
+const ADDRESS       = "";                // shown in footer
+/* ============================================= */
 
-    for (let i = 0; i < movies.length; i++) {
-        let text = movies[i].innerText.toLowerCase();
-        movies[i].style.display = text.includes(input) ? "block" : "none";
-    }
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+db.settings({experimentalAutoDetectLongPolling:true,ignoreUndefinedProperties:true});
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const MAXPICS=5;
+let favs=[];try{favs=JSON.parse(localStorage.getItem("favs")||"[]")}catch{}
+function toggleFav(id){
+  favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
+  try{localStorage.setItem("favs",JSON.stringify(favs))}catch{}
+  toast(favs.includes(id)?"Saved":"Removed from saved");renderCats();render();
 }
+let items=[], pics=[], isAdmin=false, cat="", sort="new";
+$("grid").innerHTML=Array(6).fill('<div class="sk"><i></i><i></i><i></i></div>').join("");
 
-// Open Menu
-function openMenu() {
-    document.getElementById("sidebar").style.width = "250px";
-}
+document.title = SHOP_NAME;
+$("logo").firstChild.textContent = SHOP_NAME;
+$("bTitle").textContent = "Welcome to " + SHOP_NAME;
+$("foot").innerHTML = `<b style="color:#fff">${esc(SHOP_NAME)}</b><br>${esc(ADDRESS)}${ADDRESS&&PHONE?"<br>":""}${PHONE?`Call: <a href="tel:${esc(PHONE)}">${esc(PHONE)}</a>`:""}<br>© ${new Date().getFullYear()} ${esc(SHOP_NAME)}`;
 
-// Close Menu
-function closeMenu() {
-    document.getElementById("sidebar").style.width = "0";
-}
-</script>
+function toast(t){const e=$("toast");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",2400)}
+const disc = i => i.mrp>i.price ? Math.round((i.mrp-i.price)/i.mrp*100) : 0;
+const isNew = i => i.createdAt && Date.now()-i.createdAt.toMillis() < 7*864e5;
 
-</body>
-</html>
+/* ---- image compression: max 800px, JPEG, ~120KB ---- */
+function compressImage(file,maxSide=640,targetKB=40){
+  return new Promise((res,rej)=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=img.width,h=img.height,s=Math.min(1,maxSide/Math.max(w,h));
+      w=Math.round(w*s);h=Math.round(h*s);
+      let d;
+      for(let t=0;t<6;t++){
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);
+        let q=.7;d=c.toDataURL("image/jpeg",q
